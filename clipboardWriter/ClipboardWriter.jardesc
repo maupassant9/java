@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
+<jardesc>
+    <jar path="ClipboardWrite/ClipboardWriter.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/ClipboardWrite/ClipboardWriter.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="true" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="false" mainClassHandleIdentifier="=ClipboardWrite/src&lt;pkg{Main.java[Main" manifestLocation="/ClipboardWrite/manifest.mf" manifestVersion="1.0" reuseManifest="true" saveManifest="true" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal>
+                <package handleIdentifier="=ClipboardWrite/src&lt;pkg"/>
+            </packagesToSeal>
+            <packagesToUnSeal>
+                <package handleIdentifier="=ClipboardWrite/src&lt;pkg"/>
+            </packagesToUnSeal>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <javaElement handleIdentifier="=ClipboardWrite/src"/>
+        <file path="/ClipboardWrite/.classpath"/>
+        <file path="/ClipboardWrite/.project"/>
+        <file path="/ClipboardWrite/conf"/>
+    </selectedElements>
+</jardesc>
