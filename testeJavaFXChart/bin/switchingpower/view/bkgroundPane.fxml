@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+
+<AnchorPane cache="true" cacheHint="SPEED" depthTest="ENABLE" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="switchingpower.view.RootCtr">
+   <children>
+      <TabPane cache="true" cacheHint="SPEED" layoutY="6.0" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <tabs>
+          <Tab text="Switching Power Simple Model">
+               <content>
+                  <HBox cache="true" cacheHint="SPEED" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <LineChart fx:id="chart" alternativeRowFillVisible="false" animated="false" cache="true" cacheHint="SPEED" centerShape="false" createSymbols="false" depthTest="ENABLE" horizontalZeroLineVisible="false" legendVisible="false" nodeOrientation="LEFT_TO_RIGHT" prefHeight="371.0" prefWidth="597.0" scaleShape="false" stylesheets="@chart.css" verticalZeroLineVisible="false">
+                          <xAxis>
+                            <NumberAxis animated="false" autoRanging="false" cache="true" cacheHint="SPEED" centerShape="false" minorTickCount="50" minorTickLength="3.0" minorTickVisible="false" scaleShape="false" side="BOTTOM" stylesheets="@chart.css" tickLabelsVisible="false" tickLength="3.0" tickUnit="100.0" upperBound="1000.0" fx:id="xAxis" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis fx:id="yAxis" animated="false" autoRanging="false" cache="true" cacheHint="SPEED" centerShape="false" minorTickCount="20" minorTickLength="1.0" scaleShape="false" side="LEFT" tickLabelGap="10.0" tickLabelsVisible="false" tickMarkVisible="false" tickUnit="10.0" />
+                          </yAxis>
+                           <cursor>
+                              <Cursor fx:constant="DEFAULT" />
+                           </cursor>
+                        </LineChart>
+                     </children>
+                  </HBox>
+               </content>
+          </Tab>
+          <Tab text="Canvas">
+               <content>
+                  <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Canvas fx:id="canvas" height="370.0" width="600.0" />
+                     </children>
+                  </HBox>
+               </content></Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</AnchorPane>
