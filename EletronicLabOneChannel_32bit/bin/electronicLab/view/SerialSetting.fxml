@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.effect.*?>
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="200.0" maxWidth="400.0" minHeight="111.0" minWidth="315.0" prefHeight="111.0" prefWidth="315.0" scaleShape="false" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="electronicLab.view.SettingController">
+   <children>
+      <VBox layoutX="4.0" layoutY="-7.0" prefHeight="131.0" prefWidth="315.0">
+         <children>
+            <Label prefHeight="38.0" prefWidth="301.0" text="Selecione a porta serial:">
+               <font>
+                  <Font size="16.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="20.0" top="10.0" />
+               </VBox.margin>
+            </Label>
+            <HBox prefHeight="30.0" prefWidth="277.0">
+               <children>
+                  <ChoiceBox fx:id="serialList" prefHeight="23.0" prefWidth="161.0">
+                     <HBox.margin>
+                        <Insets left="20.0" />
+                     </HBox.margin>
+                  </ChoiceBox>
+                  <Button fx:id="buttonConfigurar" mnemonicParsing="false" onAction="#handleConfigure" prefHeight="23.0" prefWidth="81.0" text="Connecte">
+                     <HBox.margin>
+                        <Insets left="30.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+               <VBox.margin>
+                  <Insets top="30.0" />
+               </VBox.margin>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

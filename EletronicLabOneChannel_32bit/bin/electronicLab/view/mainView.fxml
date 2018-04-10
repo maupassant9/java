@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="electronicLab.view.PainelGerador">
+   <children>
+      <TabPane layoutX="53.0" layoutY="55.0" prefHeight="500.0" prefWidth="850.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <tabs>
+          <Tab text="Gerador de Funções">
+               <content>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <GridPane gridLinesVisible="true" layoutY="14.0" prefHeight="371.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="14.0">
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                              <RowConstraints maxHeight="248.0" minHeight="10.0" prefHeight="21.0" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="273.0" minHeight="10.0" prefHeight="263.0" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="119.0" minHeight="0.0" prefHeight="62.0" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="136.0" minHeight="10.0" prefHeight="94.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <children>
+                              <LineChart fx:id="chart" animated="false" legendSide="TOP" legendVisible="false" prefHeight="147.0" prefWidth="253.0" stylesheets="@chart.css" GridPane.rowIndex="1">
+                                <xAxis>
+                                  <NumberAxis autoRanging="false" side="BOTTOM" tickLabelsVisible="false" tickUnit="100.0" upperBound="1000.0" fx:id="xAxis" />
+                                </xAxis>
+                                <yAxis>
+                                  <NumberAxis fx:id="yAxis" animated="false" autoRanging="false" lowerBound="-1.1" minorTickCount="1" minorTickLength="0.1" side="LEFT" tickLabelsVisible="false" tickUnit="0.1" upperBound="1.1" />
+                                </yAxis>
+                              </LineChart>
+                              <GridPane alignment="CENTER" prefHeight="59.0" prefWidth="375.0" GridPane.rowIndex="2">
+                                <columnConstraints>
+                                  <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="60.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="152.0" minWidth="10.0" prefWidth="60.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="195.0" minWidth="10.0" prefWidth="60.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="298.0" minWidth="10.0" prefWidth="60.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="298.0" minWidth="10.0" prefWidth="60.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="298.0" minWidth="10.0" prefWidth="60.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints maxHeight="27.0" minHeight="3.0" prefHeight="9.0" vgrow="SOMETIMES" />
+                                  <RowConstraints maxHeight="28.0" minHeight="10.0" prefHeight="28.0" vgrow="SOMETIMES" />
+                                </rowConstraints>
+                                 <children>
+                                    <ToggleButton fx:id="senButtonCH0" contentDisplay="CENTER" mnemonicParsing="false" onAction="#handleSenButtonCH0" prefHeight="23.0" prefWidth="42.0" GridPane.rowIndex="1" />
+                                    <Label prefHeight="15.0" prefWidth="52.0" text="Senoidal" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+                                    <Label text="Triangular" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+                                    <Label text="Serra" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
+                                    <Label prefHeight="15.0" prefWidth="73.0" text="onda de Usr" GridPane.columnIndex="5" GridPane.halignment="CENTER" />
+                                    <ToggleButton fx:id="triButtonCH0" mnemonicParsing="false" onAction="#handleTriButtonCH0" prefHeight="23.0" prefWidth="42.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                                    <ToggleButton fx:id="serraButtonCH0" mnemonicParsing="false" onAction="#handleSerraButtonCH0" prefHeight="23.0" prefWidth="42.0" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                                    <ToggleButton fx:id="serraInvButtonCH0" mnemonicParsing="false" onAction="#handleSerraInvButtonCH0" prefHeight="23.0" prefWidth="42.0" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                                    <ToggleButton fx:id="userDefinedButtonCH0" mnemonicParsing="false" onAction="#handleUserDefinedCH0" prefHeight="23.0" prefWidth="42.0" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                                    <ToggleButton fx:id="quadradoButtonCH0" mnemonicParsing="false" onAction="#handleQuadradoButtonCH0" prefHeight="23.0" prefWidth="42.0" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                                    <Label text="Serra Inv" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+                                    <Label text="Quadrado" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+                                 </children>
+                                 <GridPane.margin>
+                                    <Insets bottom="10.0" top="10.0" />
+                                 </GridPane.margin>
+                                 <cursor>
+                                    <Cursor fx:constant="HAND" />
+                                 </cursor>
+                              </GridPane>
+                              <GridPane alignment="CENTER" hgap="10.0" prefHeight="47.0" prefWidth="356.0" GridPane.rowIndex="3">
+                                <columnConstraints>
+                                  <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="112.0" minWidth="10.0" prefWidth="74.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="272.0" minWidth="10.0" prefWidth="104.0" />
+                                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="158.0" minWidth="10.0" prefWidth="56.0" />
+                                  <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="142.0" minWidth="10.0" prefWidth="49.0" />
+                                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="176.0" minWidth="8.0" prefWidth="72.0" />
+                                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="204.0" minWidth="10.0" prefWidth="113.0" />
+                                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="137.0" minWidth="10.0" prefWidth="38.0" />
+                                    <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="137.0" minWidth="10.0" prefWidth="85.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints maxHeight="36.0" minHeight="10.0" prefHeight="36.0" vgrow="SOMETIMES" />
+                                  <RowConstraints maxHeight="37.0" minHeight="9.0" prefHeight="27.0" vgrow="SOMETIMES" />
+                                  <RowConstraints maxHeight="54.0" minHeight="10.0" prefHeight="33.0" vgrow="SOMETIMES" />
+                                </rowConstraints>
+                                 <children>
+                                    <Label contentDisplay="CENTER" text="Freq." textAlignment="CENTER" />
+                                    <Label text="Altitude" GridPane.rowIndex="1" />
+                                    <TextField fx:id="freqFieldCH0" GridPane.columnIndex="1" />
+                                    <TextField fx:id="altitudeFieldCH0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <ToggleButton fx:id="kHzButtonCH0" mnemonicParsing="false" prefHeight="23.0" prefWidth="45.0" text="KHz" GridPane.columnIndex="2" />
+                                    <ToggleButton fx:id="hzButtonCH0" mnemonicParsing="false" prefHeight="23.0" prefWidth="45.0" text="Hz" GridPane.columnIndex="3" />
+                                    <ToggleButton fx:id="ampVoltsButtonCH0" mnemonicParsing="false" prefWidth="45.0" text="V" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                    <ToggleButton fx:id="ampMicroVoltsButtonCH0" mnemonicParsing="false" prefHeight="23.0" prefWidth="45.0" text="mV" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                    <ToggleButton fx:id="switchCH0" mnemonicParsing="false" onAction="#handleTurnOnCH0" text="ON" GridPane.columnIndex="7" GridPane.rowIndex="2" />
+                                    <Label contentDisplay="CENTER" text="Offset" textAlignment="CENTER" GridPane.columnIndex="4" />
+                                    <TextField fx:id="offsetFieldCH0" GridPane.columnIndex="5" />
+                                    <Label fx:id="dutyLabelCH0" contentDisplay="CENTER" text="Duty" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                    <TextField fx:id="dutyFieldCH0" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+                                    <Label fx:id="dutyUnitLabelCH0" text="\%" GridPane.columnIndex="6" GridPane.rowIndex="1" />
+                                    <Label text="mV" GridPane.columnIndex="6" />
+                                 </children>
+                                 <opaqueInsets>
+                                    <Insets />
+                                 </opaqueInsets>
+                                 <GridPane.margin>
+                                    <Insets />
+                                 </GridPane.margin>
+                                 <padding>
+                                    <Insets left="10.0" right="10.0" />
+                                 </padding>
+                              </GridPane>
+                              <Label text="CH 0" GridPane.halignment="CENTER">
+                                 <font>
+                                    <Font name="System Bold" size="16.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </GridPane>
+                     </children>
+                  </AnchorPane>
+               </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</AnchorPane>
