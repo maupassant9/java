@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_vehiclepanelcontrol" default="compile.module.vehiclepanelcontrol">
+  <dirname property="module.vehiclepanelcontrol.basedir" file="${ant.file.module_vehiclepanelcontrol}"/>
+  
+  <property name="module.jdk.home.vehiclepanelcontrol" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.vehiclepanelcontrol" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.vehiclepanelcontrol" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.vehiclepanelcontrol" value="-encoding UTF-8 -source 10 -target 10 ${compiler.args}"/>
+  
+  <property name="vehiclepanelcontrol.output.dir" value="${module.vehiclepanelcontrol.basedir}/out/production/VehiclePanelControl"/>
+  <property name="vehiclepanelcontrol.testoutput.dir" value="${module.vehiclepanelcontrol.basedir}/out/test/VehiclePanelControl"/>
+  
+  <path id="vehiclepanelcontrol.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="vehiclepanelcontrol.module.production.classpath">
+    <path refid="${module.jdk.classpath.vehiclepanelcontrol}"/>
+  </path>
+  
+  <path id="vehiclepanelcontrol.runtime.production.module.classpath">
+    <pathelement location="${vehiclepanelcontrol.output.dir}"/>
+  </path>
+  
+  <path id="vehiclepanelcontrol.module.classpath">
+    <path refid="${module.jdk.classpath.vehiclepanelcontrol}"/>
+    <pathelement location="${vehiclepanelcontrol.output.dir}"/>
+  </path>
+  
+  <path id="vehiclepanelcontrol.runtime.module.classpath">
+    <pathelement location="${vehiclepanelcontrol.testoutput.dir}"/>
+    <pathelement location="${vehiclepanelcontrol.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.vehiclepanelcontrol">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.vehiclepanelcontrol">
+    <patternset refid="excluded.from.module.vehiclepanelcontrol"/>
+  </patternset>
+  
+  <path id="vehiclepanelcontrol.module.sourcepath">
+    <dirset dir="${module.vehiclepanelcontrol.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.vehiclepanelcontrol" depends="compile.module.vehiclepanelcontrol.production,compile.module.vehiclepanelcontrol.tests" description="Compile module VehiclePanelControl"/>
+  
+  <target name="compile.module.vehiclepanelcontrol.production" depends="register.custom.compilers" description="Compile module VehiclePanelControl; production classes">
+    <mkdir dir="${vehiclepanelcontrol.output.dir}"/>
+    <javac2 destdir="${vehiclepanelcontrol.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.vehiclepanelcontrol}/javac">
+      <compilerarg line="${compiler.args.vehiclepanelcontrol}"/>
+      <bootclasspath refid="vehiclepanelcontrol.module.bootclasspath"/>
+      <classpath refid="vehiclepanelcontrol.module.production.classpath"/>
+      <src refid="vehiclepanelcontrol.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.vehiclepanelcontrol"/>
+    </javac2>
+    
+    <copy todir="${vehiclepanelcontrol.output.dir}">
+      <fileset dir="${module.vehiclepanelcontrol.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.vehiclepanelcontrol.tests" depends="register.custom.compilers,compile.module.vehiclepanelcontrol.production" description="compile module VehiclePanelControl; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.vehiclepanelcontrol" description="cleanup module">
+    <delete dir="${vehiclepanelcontrol.output.dir}"/>
+    <delete dir="${vehiclepanelcontrol.testoutput.dir}"/>
+  </target>
+</project>
