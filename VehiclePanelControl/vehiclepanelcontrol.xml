@@ -35,10 +35,11 @@
     <include name="*.egg"/>
     <include name="*.jar"/>
     <include name="*.ear"/>
+    <include name="*.ane"/>
+    <include name="*.klib"/>
     <include name="*.swc"/>
     <include name="*.war"/>
     <include name="*.zip"/>
-    <include name="*.ane"/>
   </patternset>
   <patternset id="compiler.resources">
     <exclude name="**/?*.java"/>
@@ -53,114 +54,88 @@
   
   <!-- JDK definitions -->
   
-  <property name="jdk.bin.10" value="${jdk.home.10}/bin"/>
-  <path id="jdk.classpath.10">
-    <fileset dir="${jdk.home.10}">
-      <include name="../jdk-10.0.2!/java.activation"/>
-      <include name="../jdk-10.0.2!/java.base"/>
-      <include name="../jdk-10.0.2!/java.compiler"/>
-      <include name="../jdk-10.0.2!/java.corba"/>
-      <include name="../jdk-10.0.2!/java.datatransfer"/>
-      <include name="../jdk-10.0.2!/java.desktop"/>
-      <include name="../jdk-10.0.2!/java.instrument"/>
-      <include name="../jdk-10.0.2!/java.jnlp"/>
-      <include name="../jdk-10.0.2!/java.logging"/>
-      <include name="../jdk-10.0.2!/java.management"/>
-      <include name="../jdk-10.0.2!/java.management.rmi"/>
-      <include name="../jdk-10.0.2!/java.naming"/>
-      <include name="../jdk-10.0.2!/java.prefs"/>
-      <include name="../jdk-10.0.2!/java.rmi"/>
-      <include name="../jdk-10.0.2!/java.scripting"/>
-      <include name="../jdk-10.0.2!/java.se"/>
-      <include name="../jdk-10.0.2!/java.se.ee"/>
-      <include name="../jdk-10.0.2!/java.security.jgss"/>
-      <include name="../jdk-10.0.2!/java.security.sasl"/>
-      <include name="../jdk-10.0.2!/java.smartcardio"/>
-      <include name="../jdk-10.0.2!/java.sql"/>
-      <include name="../jdk-10.0.2!/java.sql.rowset"/>
-      <include name="../jdk-10.0.2!/java.transaction"/>
-      <include name="../jdk-10.0.2!/java.xml"/>
-      <include name="../jdk-10.0.2!/java.xml.bind"/>
-      <include name="../jdk-10.0.2!/java.xml.crypto"/>
-      <include name="../jdk-10.0.2!/java.xml.ws"/>
-      <include name="../jdk-10.0.2!/java.xml.ws.annotation"/>
-      <include name="../jdk-10.0.2!/javafx.base"/>
-      <include name="../jdk-10.0.2!/javafx.controls"/>
-      <include name="../jdk-10.0.2!/javafx.deploy"/>
-      <include name="../jdk-10.0.2!/javafx.fxml"/>
-      <include name="../jdk-10.0.2!/javafx.graphics"/>
-      <include name="../jdk-10.0.2!/javafx.media"/>
-      <include name="../jdk-10.0.2!/javafx.swing"/>
-      <include name="../jdk-10.0.2!/javafx.web"/>
-      <include name="../jdk-10.0.2!/jdk.accessibility"/>
-      <include name="../jdk-10.0.2!/jdk.aot"/>
-      <include name="../jdk-10.0.2!/jdk.attach"/>
-      <include name="../jdk-10.0.2!/jdk.charsets"/>
-      <include name="../jdk-10.0.2!/jdk.compiler"/>
-      <include name="../jdk-10.0.2!/jdk.crypto.cryptoki"/>
-      <include name="../jdk-10.0.2!/jdk.crypto.ec"/>
-      <include name="../jdk-10.0.2!/jdk.crypto.mscapi"/>
-      <include name="../jdk-10.0.2!/jdk.deploy"/>
-      <include name="../jdk-10.0.2!/jdk.deploy.controlpanel"/>
-      <include name="../jdk-10.0.2!/jdk.dynalink"/>
-      <include name="../jdk-10.0.2!/jdk.editpad"/>
-      <include name="../jdk-10.0.2!/jdk.hotspot.agent"/>
-      <include name="../jdk-10.0.2!/jdk.httpserver"/>
-      <include name="../jdk-10.0.2!/jdk.incubator.httpclient"/>
-      <include name="../jdk-10.0.2!/jdk.internal.ed"/>
-      <include name="../jdk-10.0.2!/jdk.internal.jvmstat"/>
-      <include name="../jdk-10.0.2!/jdk.internal.le"/>
-      <include name="../jdk-10.0.2!/jdk.internal.opt"/>
-      <include name="../jdk-10.0.2!/jdk.internal.vm.ci"/>
-      <include name="../jdk-10.0.2!/jdk.internal.vm.compiler"/>
-      <include name="../jdk-10.0.2!/jdk.internal.vm.compiler.management"/>
-      <include name="../jdk-10.0.2!/jdk.jartool"/>
-      <include name="../jdk-10.0.2!/jdk.javadoc"/>
-      <include name="../jdk-10.0.2!/jdk.javaws"/>
-      <include name="../jdk-10.0.2!/jdk.jcmd"/>
-      <include name="../jdk-10.0.2!/jdk.jconsole"/>
-      <include name="../jdk-10.0.2!/jdk.jdeps"/>
-      <include name="../jdk-10.0.2!/jdk.jdi"/>
-      <include name="../jdk-10.0.2!/jdk.jdwp.agent"/>
-      <include name="../jdk-10.0.2!/jdk.jfr"/>
-      <include name="../jdk-10.0.2!/jdk.jlink"/>
-      <include name="../jdk-10.0.2!/jdk.jshell"/>
-      <include name="../jdk-10.0.2!/jdk.jsobject"/>
-      <include name="../jdk-10.0.2!/jdk.jstatd"/>
-      <include name="../jdk-10.0.2!/jdk.localedata"/>
-      <include name="../jdk-10.0.2!/jdk.management"/>
-      <include name="../jdk-10.0.2!/jdk.management.agent"/>
-      <include name="../jdk-10.0.2!/jdk.management.cmm"/>
-      <include name="../jdk-10.0.2!/jdk.management.jfr"/>
-      <include name="../jdk-10.0.2!/jdk.management.resource"/>
-      <include name="../jdk-10.0.2!/jdk.naming.dns"/>
-      <include name="../jdk-10.0.2!/jdk.naming.rmi"/>
-      <include name="../jdk-10.0.2!/jdk.net"/>
-      <include name="../jdk-10.0.2!/jdk.pack"/>
-      <include name="../jdk-10.0.2!/jdk.packager"/>
-      <include name="../jdk-10.0.2!/jdk.packager.services"/>
-      <include name="../jdk-10.0.2!/jdk.plugin"/>
-      <include name="../jdk-10.0.2!/jdk.plugin.server"/>
-      <include name="../jdk-10.0.2!/jdk.rmic"/>
-      <include name="../jdk-10.0.2!/jdk.scripting.nashorn"/>
-      <include name="../jdk-10.0.2!/jdk.scripting.nashorn.shell"/>
-      <include name="../jdk-10.0.2!/jdk.sctp"/>
-      <include name="../jdk-10.0.2!/jdk.security.auth"/>
-      <include name="../jdk-10.0.2!/jdk.security.jgss"/>
-      <include name="../jdk-10.0.2!/jdk.snmp"/>
-      <include name="../jdk-10.0.2!/jdk.unsupported"/>
-      <include name="../jdk-10.0.2!/jdk.xml.bind"/>
-      <include name="../jdk-10.0.2!/jdk.xml.dom"/>
-      <include name="../jdk-10.0.2!/jdk.xml.ws"/>
-      <include name="../jdk-10.0.2!/jdk.zipfs"/>
-      <include name="../jdk-10.0.2!/oracle.desktop"/>
-      <include name="../jdk-10.0.2!/oracle.net"/>
+  <property name="jdk.bin.11" value="${jdk.home.11}/bin"/>
+  <path id="jdk.classpath.11">
+    <fileset dir="${jdk.home.11}">
+      <include name="../jbr!/java.base"/>
+      <include name="../jbr!/java.compiler"/>
+      <include name="../jbr!/java.datatransfer"/>
+      <include name="../jbr!/java.desktop"/>
+      <include name="../jbr!/java.instrument"/>
+      <include name="../jbr!/java.logging"/>
+      <include name="../jbr!/java.management"/>
+      <include name="../jbr!/java.management.rmi"/>
+      <include name="../jbr!/java.naming"/>
+      <include name="../jbr!/java.net.http"/>
+      <include name="../jbr!/java.prefs"/>
+      <include name="../jbr!/java.rmi"/>
+      <include name="../jbr!/java.scripting"/>
+      <include name="../jbr!/java.se"/>
+      <include name="../jbr!/java.security.jgss"/>
+      <include name="../jbr!/java.security.sasl"/>
+      <include name="../jbr!/java.smartcardio"/>
+      <include name="../jbr!/java.sql"/>
+      <include name="../jbr!/java.sql.rowset"/>
+      <include name="../jbr!/java.transaction.xa"/>
+      <include name="../jbr!/java.xml"/>
+      <include name="../jbr!/java.xml.crypto"/>
+      <include name="../jbr!/javafx.base"/>
+      <include name="../jbr!/javafx.controls"/>
+      <include name="../jbr!/javafx.fxml"/>
+      <include name="../jbr!/javafx.graphics"/>
+      <include name="../jbr!/javafx.media"/>
+      <include name="../jbr!/javafx.swing"/>
+      <include name="../jbr!/javafx.web"/>
+      <include name="../jbr!/jdk.accessibility"/>
+      <include name="../jbr!/jdk.aot"/>
+      <include name="../jbr!/jdk.attach"/>
+      <include name="../jbr!/jdk.charsets"/>
+      <include name="../jbr!/jdk.compiler"/>
+      <include name="../jbr!/jdk.crypto.cryptoki"/>
+      <include name="../jbr!/jdk.crypto.ec"/>
+      <include name="../jbr!/jdk.dynalink"/>
+      <include name="../jbr!/jdk.httpserver"/>
+      <include name="../jbr!/jdk.internal.ed"/>
+      <include name="../jbr!/jdk.internal.jvmstat"/>
+      <include name="../jbr!/jdk.internal.le"/>
+      <include name="../jbr!/jdk.internal.vm.ci"/>
+      <include name="../jbr!/jdk.internal.vm.compiler"/>
+      <include name="../jbr!/jdk.internal.vm.compiler.management"/>
+      <include name="../jbr!/jdk.jdi"/>
+      <include name="../jbr!/jdk.jdwp.agent"/>
+      <include name="../jbr!/jdk.jfr"/>
+      <include name="../jbr!/jdk.jsobject"/>
+      <include name="../jbr!/jdk.localedata"/>
+      <include name="../jbr!/jdk.management"/>
+      <include name="../jbr!/jdk.management.agent"/>
+      <include name="../jbr!/jdk.management.jfr"/>
+      <include name="../jbr!/jdk.naming.dns"/>
+      <include name="../jbr!/jdk.naming.rmi"/>
+      <include name="../jbr!/jdk.net"/>
+      <include name="../jbr!/jdk.pack"/>
+      <include name="../jbr!/jdk.scripting.nashorn"/>
+      <include name="../jbr!/jdk.scripting.nashorn.shell"/>
+      <include name="../jbr!/jdk.sctp"/>
+      <include name="../jbr!/jdk.security.auth"/>
+      <include name="../jbr!/jdk.security.jgss"/>
+      <include name="../jbr!/jdk.unsupported"/>
+      <include name="../jbr!/jdk.xml.dom"/>
+      <include name="../jbr!/jdk.zipfs"/>
     </fileset>
   </path>
   
-  <property name="project.jdk.home" value="${jdk.home.10}"/>
-  <property name="project.jdk.bin" value="${jdk.bin.10}"/>
-  <property name="project.jdk.classpath" value="jdk.classpath.10"/>
+  <property name="project.jdk.home" value="${jdk.home.11}"/>
+  <property name="project.jdk.bin" value="${jdk.bin.11}"/>
+  <property name="project.jdk.classpath" value="jdk.classpath.11"/>
+  
+  
+  <!-- Project Libraries -->
+  
+  <path id="library.lib.classpath">
+    <fileset dir="C:/Program Files/Java/javafx-sdk-11.0.2/lib">
+      <patternset refid="library.patterns"/>
+    </fileset>
+  </path>
   <!-- Register Custom Compiler Taskdefs -->
   <property name="javac2.home" value="${idea.home}/lib"/>
   <path id="javac2.classpath">
@@ -199,20 +174,24 @@
   
   <path id="vehiclepanelcontrol.module.production.classpath">
     <path refid="${module.jdk.classpath.vehiclepanelcontrol}"/>
+    <path refid="library.lib.classpath"/>
   </path>
   
   <path id="vehiclepanelcontrol.runtime.production.module.classpath">
     <pathelement location="${vehiclepanelcontrol.output.dir}"/>
+    <path refid="library.lib.classpath"/>
   </path>
   
   <path id="vehiclepanelcontrol.module.classpath">
     <path refid="${module.jdk.classpath.vehiclepanelcontrol}"/>
     <pathelement location="${vehiclepanelcontrol.output.dir}"/>
+    <path refid="library.lib.classpath"/>
   </path>
   
   <path id="vehiclepanelcontrol.runtime.module.classpath">
     <pathelement location="${vehiclepanelcontrol.testoutput.dir}"/>
     <pathelement location="${vehiclepanelcontrol.output.dir}"/>
+    <path refid="library.lib.classpath"/>
   </path>
   
   
@@ -271,7 +250,7 @@
     <property name="artifact.output.vehiclepanelcontrol" value="${basedir}/out/artifacts/VehiclePanelControl"/>
     <mkdir dir="${artifacts.temp.dir}"/>
     <property name="artifact.temp.output.VehiclePanelControl" value="${artifacts.temp.dir}/VehiclePanelControl.jar"/>
-    <taskdef resource="com/sun/javafx/tools/ant/antlib.xml" uri="javafx:com.sun.javafx.tools.ant" classpath="${jdk.home.10}/lib/ant-javafx.jar"/>
+    <taskdef resource="com/sun/javafx/tools/ant/antlib.xml" uri="javafx:com.sun.javafx.tools.ant" classpath="${jdk.home.11}/lib/ant-javafx.jar"/>
   </target>
   
   <target name="clean.artifact.vehiclepanelcontrol" description="clean VehiclePanelControl artifact output">
