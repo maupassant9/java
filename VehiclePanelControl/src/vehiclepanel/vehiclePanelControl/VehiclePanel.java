@@ -1,7 +1,10 @@
 package vehiclepanel.vehiclePanelControl;
 
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -16,11 +19,11 @@ import static javafx.scene.paint.Color.BLACK;
 public class VehiclePanel extends Region {
 
     final private int PREFERRED_WIDTH = 800;
-    final private int PREFERRED_HEIGHT = 100;
+    final private int PREFERRED_HEIGHT = 150;
     final private int MINIMUM_WIDTH = 800;
-    final private int MINIMUM_HEIGHT = 100;
+    final private int MINIMUM_HEIGHT = 150;
     final private int MAXIMUM_WIDTH = 800;
-    final private int MAXIMUM_HEIGHT = 100;
+    final private int MAXIMUM_HEIGHT = 150;
 
     final private int VEHICLE_TAIL_LENGTH = 30;
     final private int VEHICLE_WHEEL_SIZE = 12;
@@ -36,8 +39,6 @@ public class VehiclePanel extends Region {
     private String name;
 
     private Vehicle vehicle;
-
-
 
 
     public VehiclePanel(Vehicle vehicle, String name){
@@ -60,16 +61,15 @@ public class VehiclePanel extends Region {
     public void init(){
         if (Double.compare(getWidth(), 0) <= 0 || Double.compare(getHeight(), 0) <= 0 ||
                 Double.compare(getPrefWidth(), 0) <= 0 || Double.compare(getPrefHeight(), 0) <= 0) {
-            setPrefSize(PREFERRED_WIDTH, PREFERRED_HEIGHT+20);
+            //setPrefSize(PREFERRED_WIDTH, PREFERRED_HEIGHT+20);
         }
         if (Double.compare(getMinWidth(), 0) <= 0 || Double.compare(getMinHeight(), 0) <= 0) {
-            setMinSize(MINIMUM_WIDTH, MINIMUM_HEIGHT+20);
+            //setMinSize(MINIMUM_WIDTH, MINIMUM_HEIGHT+20);
         }
         if (Double.compare(getMaxWidth(), 0) <= 0 || Double.compare(getMaxHeight(), 0) <= 0) {
-            setMaxSize(MAXIMUM_WIDTH, MAXIMUM_HEIGHT+20);
+           // setMaxSize(MAXIMUM_WIDTH, MAXIMUM_HEIGHT+20);
         }
     }
-
 
     public String getName() {
         return name;
@@ -151,13 +151,19 @@ public class VehiclePanel extends Region {
 
         VBox vboxInfos = new VBox();
         Label laneLabel = new Label();
+
+        //laneLabel.getStylesheets().add("vehiclePanel-speedtext");
+
+
         laneLabel.setText(name);
-        laneLabel.setFont(Font.font("Arial Black", 20));
+        //laneLabel.setFont(Font.font("Arial Black", 20));
+        laneLabel.setId("laneNameStyle");
         vboxInfos.getChildren().add(laneLabel);
         vboxInfos.setAlignment(Pos.BASELINE_RIGHT);
-        Label laneLabel2 = new Label("Speed:  10 km/h");
-        laneLabel2.setFont(Font.font(20));
-        laneLabel2.setTextFill(Color.IVORY);
+        Label laneLabel2 = new Label("Speed:  "+vehicle.getSpeed()+" km/h");
+        //laneLabel2.setFont(Font.font(20));
+        //laneLabel2.setTextFill(Color.IVORY);
+        laneLabel2.setId("SpeedStyle");
         vboxInfos.getChildren().add(laneLabel2);
         addDirectionArrow(vboxInfos);
         vboxInfos.setPadding(new Insets(5,10,0,0));
@@ -168,32 +174,45 @@ public class VehiclePanel extends Region {
     public void displayPanel(Vehicle vehicle){
         getChildren().clear();
         if(vehicle == null) return;
+
+        this.vehicle = vehicle;
         VBox vbox = new VBox();
+        //vbox.getStylesheets().add(getClass().getResource("vehiclePanel.css").toExternalForm());
         HBox hbox = new HBox();
-        HBox hboxInfos = new HBox();
+        HBox hboxDistInfos = new HBox();
+        HBox hboxEixoInfos = new HBox();
 
 
         hbox.setPrefSize(PREFERRED_WIDTH,PREFERRED_HEIGHT);
         hbox.setMinSize(MINIMUM_WIDTH,MINIMUM_HEIGHT);
         hbox.setMaxSize(MAXIMUM_WIDTH,MAXIMUM_HEIGHT);
         hbox.setBackground(new Background(new BackgroundFill(Color.SLATEGRAY, CornerRadii.EMPTY, new Insets(0))));
-        hboxInfos.setSpacing(10.0);
-        hboxInfos.setPadding(new Insets(0,0,0,10));
+        hboxDistInfos.setSpacing(10.0);
+        hboxDistInfos.setPadding(new Insets(0,0,0,10));
+        hboxEixoInfos.setSpacing(10.0);
+        hboxEixoInfos.setPadding(new Insets(0,0,0,10));
         vbox.setBorder(new Border(new BorderStroke(Color.DIMGRAY, BorderStrokeStyle.SOLID,CornerRadii.EMPTY,BorderWidths.DEFAULT)));
 
         addVehicleTail(hbox);
 
         //Add distance information
-        int i = 0;
-        for(; i < vehicle.getDistEntreEixos().size()-1; i++){
-            hboxInfos.getChildren().add(new Label("D"+i+":   "+ vehicle.getDistEntreEixos().get(i)+"m"));
+        addVehicleLine(hbox, 20);
+        addWheel(hbox);
+        for(int i = 0; i < vehicle.getWtPerEixo().size() - 1; i++){
+            //hboxDistInfos.getChildren().add(new Label("D"+i+":   "+ vehicle.getDistEntreEixos().get(i)+"m"));
             addVehicleLine(hbox, (int) (vehicle.getDistEntreEixos().get(i)*10.0));
             addWheel(hbox);
         }
         int lineWidth= (int)(vehicle.getDistEntreEixos().get(vehicle.getDistEntreEixos().size() - 1)*10);
         //add the last Distance information
-        hboxInfos.getChildren().add(new Label("D"+i+":   "+ vehicle.getDistEntreEixos().get(i)+"m"));
-        addVehicleLine(hbox, (int) (vehicle.getDistEntreEixos().get(i)*10.0));
+        //hboxDistInfos.getChildren().add(new Label("D"+i+":   "+ vehicle.getDistEntreEixos().get(i)+"m"));
+        addVehicleLine(hbox, 20);
+
+        addDistLabels(hboxDistInfos.getChildren(),vehicle);
+        addEixoLabels(hboxEixoInfos.getChildren(),vehicle);
+        hboxDistInfos.setId("DistInfoBg");
+        hboxEixoInfos.setId("EixoInfoBg");
+
 
         if((lineWidth - VEHICLE_HEAD_WIDTH) > 0)
             addVehicleLine(hbox, lineWidth-VEHICLE_HEAD_WIDTH);
@@ -202,7 +221,27 @@ public class VehiclePanel extends Region {
         addLaneSpeedInfo(hbox);
         vbox.getChildren().add(hbox);
 
-        vbox.getChildren().add(hboxInfos);
+        vbox.getChildren().add(hboxDistInfos);
+        vbox.getChildren().add(hboxEixoInfos);
         getChildren().addAll(vbox);
     }
+
+
+    protected void addDistLabels(ObservableList<Node> nodes, Vehicle vehicle){
+        for(int i = 0; i < vehicle.getDistEntreEixos().size(); i++) {
+            Label label = new Label("D" + i + ":   " + vehicle.getDistEntreEixos().get(i) + "m");
+            nodes.add(label);
+            label.setId("DistTextStyle");
+        }
+    }
+
+    protected void addEixoLabels(ObservableList<Node> nodes, Vehicle vehicle){
+        for(int i = 0; i < vehicle.getDistEntreEixos().size(); i++) {
+            Label label = new Label("E" + i + ":   " + vehicle.getWtPerEixo().get(i) + "kg");
+            nodes.add(label);
+            label.setId("EixoTextStyle");
+        }
+    }
+
+
 }

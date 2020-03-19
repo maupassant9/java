@@ -5,19 +5,43 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Vehicle {
-
     private final ArrayList<Double> distEntreEixos;
+    private final double speedKmh;
+    private final ArrayList<Double> wtPerEixoKg;
+    private final double totalWtKg;
 
-    public Vehicle(ArrayList<Double> distEntreEixos){
-
-        this.distEntreEixos = distEntreEixos;
+    public double getSpeed() {
+        return speedKmh;
     }
-    public Vehicle(){
-        ArrayList<Double> dist = new ArrayList<>(Arrays.asList(2.0,1.0,3.0));
-        this.distEntreEixos = dist;
+
+    public ArrayList<Double> getWtPerEixo() {
+        return wtPerEixoKg;
+    }
+
+    public double getTotalWeight() {
+        return totalWtKg;
     }
 
     public ArrayList<Double> getDistEntreEixos(){
         return distEntreEixos;
     }
+
+    public Vehicle(ArrayList<Double> distEntreEixos,
+                   double speed,
+                   ArrayList<Double> eixoWt,
+                   double totalWt) throws Exception {
+        if(distEntreEixos.size() != eixoWt.size()-1){
+            throw new Exception();
+        }
+        this.distEntreEixos = distEntreEixos;
+        this.speedKmh = speed;
+        wtPerEixoKg = eixoWt;
+        totalWtKg = totalWt;
+    }
+
+
+    public int getEixoNumber(){
+        return wtPerEixoKg.size();
+    }
+
 }
