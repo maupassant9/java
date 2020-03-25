@@ -1,17 +1,21 @@
 package vehiclepanel;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Vehicle {
     private final ArrayList<Double> distEntreEixos;
     private final double speedKmh;
     private final ArrayList<Double> wtPerEixoKg;
     private final double totalWtKg;
+    private String name;
 
     public double getSpeed() {
         return speedKmh;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
     }
 
     public ArrayList<Double> getWtPerEixo() {
@@ -37,11 +41,18 @@ public class Vehicle {
         this.speedKmh = speed;
         wtPerEixoKg = eixoWt;
         totalWtKg = totalWt;
+
+        name = "No.0";
     }
 
 
     public int getEixoNumber(){
         return wtPerEixoKg.size();
+    }
+
+    @Override
+    public String toString(){
+        return name+": " +speedKmh + " Km/h " + (double)(totalWtKg/1000.0) + "T " + getEixoNumber() + " eixos";
     }
 
 }
