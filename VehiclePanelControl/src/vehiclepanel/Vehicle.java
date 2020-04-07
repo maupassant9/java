@@ -20,7 +20,7 @@ public class Vehicle {
     //but i have no where to put it.
     private int temperature; 
 
-    private double calibrateWt = 0;
+    private Double calibrateWt = null;
 
     public double getSpeed() {
         return speedKmh;
@@ -145,7 +145,7 @@ public class Vehicle {
     {
         String[] datas = str.split(",");
         int idx = 0;
-        double calibrateWt = Double.parseDouble(datas[idx++]);
+        double caliWt = Double.parseDouble(datas[idx++]);
         int temperature = Integer.parseInt(datas[idx++]);
         int faixaVel = Integer.parseInt(datas[idx++]);
         int idVel = Integer.parseInt(datas[idx++]);
@@ -192,7 +192,7 @@ public class Vehicle {
             speed, wtPerEixo, totalWt, 
             temperature, faixaVel, 
             eixoWtsForAllSensors);
-        vel.setCalibrateWt(calibrateWt);
+        vel.setCalibrateWt(caliWt);
         return vel;
     }
 
@@ -202,7 +202,7 @@ public class Vehicle {
         calibrateWt = val;
     }
 
-    public double getCalibrateWt()
+    public Double getCalibrateWt()
     {
         return calibrateWt;
     }

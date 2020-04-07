@@ -184,7 +184,11 @@ public class Calibrator implements Runnable {
     private void addCalibrationVehicles(List<Vehicle> vels) {
         // add new vehicles to calibrationPts
         for (Vehicle vel : vels) {
-            vel.setCalibrateWt(filter.calibrateWeight);
+            //if no calibration wt infor is avaliable
+            if(vel.getCalibrateWt() == null){
+                vel.setCalibrateWt(filter.calibrateWeight);
+            }
+            
             int temp =(int)(Math.round(((double)vel.getTemperature())/10)*10);
             if (calibrationVehicles.containsKey(temp)) {
                 calibrationVehicles.get(temp).add(vel);
