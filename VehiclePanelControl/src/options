@@ -1,0 +1,7 @@
+-d out
+-g
+-sourcepath vehiclepanel/
+-sourcepath vehiclepanel/vehiclePanelControl/
+-sourcepath vehiclepanel/CommSDIP/
+-sourcepath vehiclepanel/Calibrator/
+-classpath /home/dong/JavaLib/JSerialComm/jSerialComm-2.5.3.jar:/home/dong/JavaLib/javafx-sdk-11.0.2/lib/*.jar

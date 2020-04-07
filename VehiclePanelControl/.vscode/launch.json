@@ -8,7 +8,7 @@
             "type": "java",
             "name": "Debug (Launch) - Current File",
             "request": "launch",
-            "console":"integratedTerminal",
+            "console": "integratedTerminal",
             "vmArgs": "--module-path \"C:\\Program Files\\Java\\javafx-sdk-11.0.2\\lib\" --add-modules javafx.controls,javafx.fxml",
             "mainClass": "${file}"
         },
@@ -18,7 +18,7 @@
             "request": "launch",
             "mainClass": "vehiclepanel.Main",
             "console": "internalConsole",
-            "projectName": "VehiclePanelControl_d734a61f"
+            "projectName": "VehiclePanelControl_250d910b"
         }
     ]
 }
