@@ -21,6 +21,7 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import vehiclepanel.Controller;
 
+
 public class CommThread implements Runnable {
 
     public SerialPort serialPort;
@@ -29,13 +30,17 @@ public class CommThread implements Runnable {
     private Controller ctr;
 
     //Two buffers for other threads send and receive datas
-    public ConcurrentLinkedQueue<ArrayList<Byte>> bufferTx;
-    public ConcurrentLinkedQueue<ArrayList<Byte>> bufferRx;
+    public static volatile ConcurrentLinkedQueue<ArrayList<Byte>> bufferTx;
+    public static volatile ConcurrentLinkedQueue<ArrayList<Byte>> bufferRx;
 
     //raw data from serial port
     private ConcurrentLinkedQueue<Byte> rxRawDatas; 
+
+    private static CommThread myown = null;
+    //This is a lock for some command that need response.
+    public static Object commLock;
     
-    public CommThread(Object lock, Controller ctr) {
+    private CommThread(Object lock, Controller ctr) {
         this.lockMain = lock;
         this.lock = new Object();
         this.ctr = ctr;
@@ -46,6 +51,23 @@ public class CommThread implements Runnable {
         
         //raw data for serial port
         rxRawDatas = new ConcurrentLinkedQueue<>();
+        myown = this;
+        commLock = new Object();
+    }
+
+
+    public static CommThread getCommThread(Object lock, Controller ctr)
+    {
+        if(myown == null){
+            return new CommThread(lock, ctr);
+        } else {
+            return myown;
+        }
+    }
+
+    public static CommThread getCommThread()
+    {
+        return myown;
     }
 
     @Override
@@ -56,7 +78,6 @@ public class CommThread implements Runnable {
             try {
                 lockMain.wait();
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -78,7 +99,8 @@ public class CommThread implements Runnable {
                         Optional<SerialPort> selSerial = diag.showAndWait();
                         serialPort = selSerial.get();
                         serialPort.setBaudRate(115200);
-                        serialPort.setParity(SerialPort.ODD_PARITY);
+                        serialPort.setNumDataBits(8);
+                        serialPort.setParity(SerialPort.NO_PARITY);
                         serialPort.setNumStopBits(SerialPort.ONE_STOP_BIT);
                                                 
                         synchronized (lock) {
@@ -132,6 +154,7 @@ public class CommThread implements Runnable {
                 byte[] newDatas = evt.getReceivedData();
                 for(byte data: newDatas){
                     rxRawDatas.add(data);
+                    //ystem.out.println(data+" rsved.");
                 }
             }
         
@@ -140,39 +163,41 @@ public class CommThread implements Runnable {
                 return SerialPort.LISTENING_EVENT_DATA_RECEIVED;
             }
         });
+
         //valid data get from raw data, temperorily saved place
         ArrayList<Byte> rxValidData = new ArrayList<>(); 
 
         //monitor the serial port here.
         while (true) {
             try {
-                Thread.sleep(200);
-
-                //monitoring write buffer
-                while(!bufferTx.isEmpty()){
-                    //send the data
-                    ArrayList<Byte> dataToSent = bufferTx.poll();
-                    Byte[] datasInBytes = (Byte[]) dataToSent.toArray();
-                    serialPort.writeBytes(tobyte(datasInBytes), datasInBytes.length);
-                }
-
-                //check read buffer here
-                while(!rxRawDatas.isEmpty()){
-                    if(isValidDataFrame(rxValidData))
-                    {
-                        bufferRx.add(rxValidData);
-                        //create a new instance.
-                        rxValidData = new ArrayList<>();
-                    }
-                }
-                System.out.println("SerialPort initialized...");
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }
+            //monitoring write buffer
+            while(!bufferTx.isEmpty()){
+                //send the data
+                ArrayList<Byte> dataToSent = bufferTx.poll();
+                Byte[] datasInBytes = new Byte[dataToSent.size()];
+                datasInBytes = dataToSent.toArray(datasInBytes);
+                serialPort.writeBytes(tobyte(datasInBytes), datasInBytes.length);
+            }
+
+            //System.out.println("buffer size = "+bufferRx.size());
+            //check read buffer here
+            while(!rxRawDatas.isEmpty()){
+                if(isValidDataFrame(rxValidData))
+                {
+                    bufferRx.add(rxValidData);
+                    //create a new instance.
+                    rxValidData = new ArrayList<>();
+                }
             }
         }
     }
 
-
+    
+   
     //convert Byte[] to byte
     private byte[] tobyte(Byte[] array)
     {
@@ -204,7 +229,7 @@ public class CommThread implements Runnable {
     private final int MAX_LENGTH_FRAME = 200;
     private int dataCnter = 0;
     private final int FRAME_HEAD_LENGTH = 4; //
-    private int crc = 0;
+    private UByteLikeC crc = new UByteLikeC(0);
     private boolean flagEndOfFrame = false;
 
     //check is it is a valid value for a frame
@@ -212,30 +237,30 @@ public class CommThread implements Runnable {
         boolean isValid = false;
         //if it is in head area
         if(pos < FRAME_HEAD_LENGTH){
-
             switch(pos)
             {
                 case 0: //it is in frame head area
-                    if((int)val == 0xaa){
+                    if((int)val == (byte)0xaa){
                         isValid = true;
-                        crc = val;
+                        crc.set(0);
+                        crc.add(val);
                         flagEndOfFrame = false;
                     }
                     break;
                 case 1: // route byte
-                    if((int)val == 0x10){
+                    if((int)val == (byte)0x10){
                         isValid = true;
-                        crc += val;
+                        crc.add(val);
                     }
                     break;
                 case 2: //Type
                     isValid = true;
-                    crc += val;
+                    crc.add(val);
                     break;
                 case 3: //size
                     isValid = true;
                     dataCnter = (int)val;
-                    crc += val;
+                    crc.add(val);
                     break;
             }
             
@@ -243,11 +268,11 @@ public class CommThread implements Runnable {
             //Data bytes
             if(dataCnter != 0){  //if it is some data
                 dataCnter--;
-                crc += val;
+                crc.add(val);
                 isValid = true;
             } else { 
                 //no data or data transmitted, check crc here
-                if(crc == val) 
+                if((byte)crc.value == (byte)val) 
                 {
                     flagEndOfFrame = true;
                     isValid = true;
@@ -255,6 +280,27 @@ public class CommThread implements Runnable {
             }
         } 
         return isValid;
+    }
+
+
+    public ArrayList<Byte> generateFrame(byte[]datas, byte type)
+    {
+        UByteLikeC crc = new UByteLikeC(0);
+        
+        ArrayList<Byte> frame = new ArrayList<>();
+        frame.add((byte)0xaa);//start byte
+        crc.add(0xaa);
+        frame.add((byte)0x01);//route byte
+        crc.add(0x01);
+        frame.add((byte)type); //type
+        crc.add(type);
+        frame.add((byte)datas.length);
+        for(byte data:datas){
+            frame.add(data);
+            crc.add(data);
+        }
+        frame.add((byte)crc.value);
+        return frame;
     }
 
 

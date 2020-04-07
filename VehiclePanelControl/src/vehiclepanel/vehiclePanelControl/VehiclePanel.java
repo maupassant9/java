@@ -157,20 +157,32 @@ public class VehiclePanel extends Region {
         VBox vboxInfos = new VBox();
         Label laneLabel = new Label();
 
-        //laneLabel.getStylesheets().add("vehiclePanel-speedtext");
-
-
         laneLabel.setText(name);
-        //laneLabel.setFont(Font.font("Arial Black", 20));
         laneLabel.setId("laneNameStyle");
         vboxInfos.getChildren().add(laneLabel);
         vboxInfos.setAlignment(Pos.BASELINE_RIGHT);
-        Label laneLabel2 = new Label("Speed:  "+vehicle.getSpeed()+" km/h");
-        //laneLabel2.setFont(Font.font(20));
-        //laneLabel2.setTextFill(Color.IVORY);
+        Label laneLabel2, tempLabel, weightLabel;
+        if(vehicle != null){
+            laneLabel2 = new Label(vehicle.getName() +
+                    ":"+vehicle.getSpeed()+" km/h");
+            tempLabel = new Label(vehicle.getTemperature()+"°C");
+            weightLabel = new Label(vehicle.getTotalWeight()+"Kg");
+        }
+        else{
+            laneLabel2 = new Label("0 km/h");
+            tempLabel = new Label("-- °C");
+            weightLabel = new Label("-- Kg");
+        }
+
         laneLabel2.setId("SpeedStyle");
         vboxInfos.getChildren().add(laneLabel2);
         addDirectionArrow(vboxInfos);
+        
+        tempLabel.setId("TempStyle");
+        vboxInfos.getChildren().add(tempLabel);
+        weightLabel.setId("TotalWeightStyle");
+        vboxInfos.getChildren().add(weightLabel);
+
         vboxInfos.setPadding(new Insets(5,10,0,0));
         HBox.setHgrow(vboxInfos,Priority.ALWAYS);
         hbox.getChildren().add(vboxInfos);
@@ -178,8 +190,8 @@ public class VehiclePanel extends Region {
 
     public void displayPanel(Vehicle vehicle){
         getChildren().clear();
-        if(vehicle == null) return;
-
+        vboxMain.getChildren().clear();
+        
         this.vehicle = vehicle;
         //vbox.getStylesheets().add(getClass().getResource("vehiclePanel.css").toExternalForm());
         HBox hboxPanel = new HBox();
@@ -198,30 +210,30 @@ public class VehiclePanel extends Region {
         hboxEixoInfos.setPadding(new Insets(0,0,0,10));
         vboxMain.setBorder(new Border(new BorderStroke(Color.DIMGRAY, BorderStrokeStyle.SOLID,CornerRadii.EMPTY,BorderWidths.DEFAULT)));
 
-        addVehicleTail(hboxPanel);
-
-        //Add distance information
-        addVehicleLine(hboxPanel, 20);
-        addWheel(hboxPanel);
-        for(int i = 0; i < vehicle.getWtPerEixo().size() - 1; i++){
+        if(vehicle != null) {
+            addVehicleTail(hboxPanel);
+            //Add distance information
+            addVehicleLine(hboxPanel, 20);
+            addWheel(hboxPanel);    
+            //add wheels
+            for(int i = 0; i < vehicle.getWtPerEixo().size() - 1; i++){
+                //hboxDistInfos.getChildren().add(new Label("D"+i+":   "+ vehicle.getDistEntreEixos().get(i)+"m"));
+                addVehicleLine(hboxPanel, (int) (vehicle.getDistEntreEixos().get(i)*10.0));
+                addWheel(hboxPanel);
+            }
+            int lineWidth= (int)(vehicle.getDistEntreEixos().get(vehicle.getDistEntreEixos().size() - 1)*10);
+            //add the last Distance information
             //hboxDistInfos.getChildren().add(new Label("D"+i+":   "+ vehicle.getDistEntreEixos().get(i)+"m"));
-            addVehicleLine(hboxPanel, (int) (vehicle.getDistEntreEixos().get(i)*10.0));
-            addWheel(hboxPanel);
-        }
-        int lineWidth= (int)(vehicle.getDistEntreEixos().get(vehicle.getDistEntreEixos().size() - 1)*10);
-        //add the last Distance information
-        //hboxDistInfos.getChildren().add(new Label("D"+i+":   "+ vehicle.getDistEntreEixos().get(i)+"m"));
-        addVehicleLine(hboxPanel, 20);
+            addVehicleLine(hboxPanel, 20);
 
+            if((lineWidth - VEHICLE_HEAD_WIDTH) > 0)
+            addVehicleLine(hboxPanel, lineWidth-VEHICLE_HEAD_WIDTH);
+            addVehicleHead(hboxPanel);
+         }
         addDistLabels(hboxDistInfos.getChildren(),vehicle);
         addEixoLabels(hboxEixoInfos.getChildren(),vehicle);
         hboxDistInfos.setId("DistInfoBg");
         hboxEixoInfos.setId("EixoInfoBg");
-
-
-        if((lineWidth - VEHICLE_HEAD_WIDTH) > 0)
-            addVehicleLine(hboxPanel, lineWidth-VEHICLE_HEAD_WIDTH);
-        addVehicleHead(hboxPanel);
 
         addLaneSpeedInfo(hboxPanel);
         vboxMain.getChildren().add(hboxPanel);
@@ -230,14 +242,17 @@ public class VehiclePanel extends Region {
         vboxMain.getChildren().add(hboxEixoInfos);
         getChildren().addAll(vboxMain);
 
+    }
 
+    void displayPanel(){
+        displayPanel(vehicle);
     }
 
 
     public void clearPanel()
     {
-        vboxMain.getChildren().clear();
         vehicle = null;
+        displayPanel(null);
     }
 
 
@@ -249,18 +264,35 @@ public class VehiclePanel extends Region {
 
 
     protected void addDistLabels(ObservableList<Node> nodes, Vehicle vehicle){
-        for(int i = 0; i < vehicle.getDistEntreEixos().size(); i++) {
-            Label label = new Label("D" + i + ":   " + vehicle.getDistEntreEixos().get(i) + "m");
+        Label label;
+        if(vehicle != null){
+            for(int i = 0; i < vehicle.getDistEntreEixos().size(); i++) {
+                label = new Label("D" + i + ":   " + vehicle.getDistEntreEixos().get(i) + "m");
+                nodes.add(label);
+                label.setId("DistTextStyle");
+            }
+        }else{
+            label = new Label("   ");
             nodes.add(label);
             label.setId("DistTextStyle");
         }
+        
+        
     }
 
     protected void addEixoLabels(ObservableList<Node> nodes, Vehicle vehicle){
-        for(int i = 0; i < vehicle.getWtPerEixo().size(); i++) {
-            Label label = new Label("E" + i + ":   " + vehicle.getWtPerEixo().get(i) + "kg");
+        Label label;
+        if(vehicle != null){
+            for(int i = 0; i < vehicle.getWtPerEixo().size(); i++) {
+                label = new Label("E" + i + ":   " + vehicle.getWtPerEixo().get(i) + "kg");
+                nodes.add(label);
+                label.setId("EixoTextStyle");
+            }
+        } else {
+            label = new Label("   ");
             nodes.add(label);
             label.setId("EixoTextStyle");
         }
+        
     }
 }
