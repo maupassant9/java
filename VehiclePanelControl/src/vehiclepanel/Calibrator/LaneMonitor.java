@@ -33,7 +33,9 @@ public class LaneMonitor implements Runnable {
     private VehiclePanel panel2;
 
     private int currentTemp;
-    private int cnter = 5; // very bad habit, but i will keep this way.
+    private final int REFRESH_RATE_IN_0_5SEC = 20;
+    private int cnterForPanel1 = REFRESH_RATE_IN_0_5SEC; // very bad habit, but i will keep this way.
+    private int cnterForPanel2 = REFRESH_RATE_IN_0_5SEC; // very bad habit, but i will keep this way.
     public static volatile boolean calibrated = false;
     public static volatile AtomicBoolean notified = new AtomicBoolean(false);
     public static volatile Object laneLock;
@@ -49,7 +51,7 @@ public class LaneMonitor implements Runnable {
         panel1 = null;
         panel2 = null;
         ctr = null;
-        filter = new VehicleFilter();
+        filter = VehicleFilter.getVehicleFilter();
         laneLock = new Object();
     }
 
@@ -66,11 +68,17 @@ public class LaneMonitor implements Runnable {
                 }
 
                 // check if there is any vehicle should be shown on panel
-                cnter--;
-                if (cnter == 0) { // every 5 times, execute here.
+                cnterForPanel1--;
+                cnterForPanel2--;
+                if ((cnterForPanel1 == 0) ||
+                    (vehicleWaitForDisplayOnPanel1.size()>0) ) { 
                     clrPanel(panel1);
+                    cnterForPanel1 = REFRESH_RATE_IN_0_5SEC;
+                }
+                if ((cnterForPanel2 == 0) ||
+                    (vehicleWaitForDisplayOnPanel2.size()>0)) { 
                     clrPanel(panel2);
-                    cnter = 20;
+                    cnterForPanel2 = REFRESH_RATE_IN_0_5SEC;
                 }
     
                 showOnPanel(vehicleWaitForDisplayOnPanel1, panel1);
@@ -102,6 +110,7 @@ public class LaneMonitor implements Runnable {
                 {
                     case COM_TEMPERATURE:
                         currentTemp = rxDatas.get(4);
+                        writeToTextView("Current temperature is: "+currentTemp+"°C. \n");
                         break;
                     case COM_VEHICLE_RECORD:
                         try {
@@ -117,7 +126,7 @@ public class LaneMonitor implements Runnable {
                             @Override
                             public void run() {
                                 ctr.setCaliParameters.setDisable(false);
-                                ctr.caliInfoText.set("Enter into Calibration Mode...");
+                                Controller.caliInfoText.set("Enter into Calibration Mode...");
                             }
                         });
                         
@@ -127,30 +136,21 @@ public class LaneMonitor implements Runnable {
                             notified.set(true);
                             laneLock.notifyAll();
                         }
-                        Platform.runLater(new Runnable(){
-                        
-                            @Override
-                            public void run() {
-                                ctr.caliInfoText.set("Table updated OK.");
-                            }
-                        });
+                        writeToTextView("Table updated...\n");
                         break;
                     case COM_WRITE_FLASH_OK:
                         synchronized(laneLock){
                             notified.set(true);
                             laneLock.notifyAll();
                         }
-                        Platform.runLater(new Runnable(){
-                        
-                            @Override
-                            public void run() {
-                                ctr.caliInfoText.set("Flash updated OK.");
-                            }
-                        });
+                        writeToTextView("Flash updated OK.\n");
                         break;
                     case COM_RESET_DSP:
+                        writeToTextView("DSP POWERED OFF ... \n");
                     case COM_RELEASE_DSP:
+                        writeToTextView("DSP POWERED ON AGAIN ...\n");
                     case COM_RELEASE_CALIBRATION_MODE:
+                        writeToTextView("Leave calibration mode ...\n");
                         synchronized(laneLock){
                             notified.set(true);
                             laneLock.notifyAll();
@@ -205,6 +205,7 @@ public class LaneMonitor implements Runnable {
     private void addVehicles(ArrayList<Byte> vehicleSerialData) throws Exception {
 
         Vehicle vehicle = generateVehicle(vehicleSerialData);
+        filter = VehicleFilter.getVehicleFilter();
 
         if(filter != null)
                 vehicle = filter.filter(vehicle);
@@ -313,12 +314,21 @@ public class LaneMonitor implements Runnable {
         this.panel2 = panel2;
     }
 
-    public void setFilter(VehicleFilter filter) {
-        this.filter = filter;
-    }
-
     public void setCtr(Controller ctr) {
         this.ctr = ctr;
+    }
+
+
+    private void writeToTextView(String str){
+        Platform.runLater(new Runnable(){
+        
+            @Override
+            public void run() {
+                String mystr = str+Controller.caliInfoText.get();
+                Controller.caliInfoText.set(mystr);
+                
+            }
+        });
     }
 
 }

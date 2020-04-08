@@ -17,6 +17,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
+import vehiclepanel.Controller;
 import vehiclepanel.Vehicle;
 import vehiclepanel.CommSDIP.CommThread;
 import vehiclepanel.CommSDIP.UByteLikeC;
@@ -28,6 +29,7 @@ public class Calibrator implements Runnable {
     public static final int SEND_CALIBRATE_TABLE = 0x03;
     public static final int LOAD_CALIBRATE_TABLE = 0x04;
     public static final int ENTER_CALIBRATION_MODE = 0x05;
+    public static final int LEFT_CALI_STATE = 0x06;
 
     // =======SDIP COMMANDS=========//
     private final byte COM_SDIP_ENTER_INTO_CALI = (byte) 0x60;
@@ -61,10 +63,10 @@ public class Calibrator implements Runnable {
 
     private static VehicleFilter filter;
 
-    private Calibrator(ObservableList<Vehicle> caliVels, VehicleFilter filter) {
+    private Calibrator(ObservableList<Vehicle> caliVels) {
         vehicles = caliVels;
         function = GENERATE_CALIBRATE_TABLE;
-        this.filter = filter;
+        filter = VehicleFilter.getVehicleFilter();
         calibrationTable = new HashMap<>();
 
         for (int sensorNo = 1; sensorNo <= 3; sensorNo++) {
@@ -79,10 +81,10 @@ public class Calibrator implements Runnable {
         bufferTx = null;
     }
 
-    public static Calibrator getCalibrator(ObservableList<Vehicle> caliVels, VehicleFilter filter) {
+    public static Calibrator getCalibrator(ObservableList<Vehicle> caliVels) {
 
         if (myown == null) {
-            myown = new Calibrator(caliVels, filter);
+            myown = new Calibrator(caliVels);
         }
         return myown;
     }
@@ -107,6 +109,13 @@ public class Calibrator implements Runnable {
         }
 
         switch (function) {
+            case LEFT_CALI_STATE:
+                try{
+                    if(!sendCmdDsp(COM_SDIP_RELEASE_FROM_CALI)) throw new Exception();
+                }catch(Exception e){
+                    writeToTextView("Not able to left calibration mode\n");
+                }
+                break;
             case SAVE_CALIBRATE_TABLE:
                 saveCalibrationInfos();
                 break;
@@ -129,7 +138,6 @@ public class Calibrator implements Runnable {
                     //write to flash
                     if(!writeToFlash()) throw new Exception();
                     if(!sendCmdDsp(COM_SDIP_RELEASE_DSP)) throw new Exception();
-                    if(!sendCmdDsp(COM_SDIP_RELEASE_FROM_CALI)) throw new Exception();
                 } catch (Exception e1) {
                     Platform.runLater(new Runnable(){
                     
@@ -182,12 +190,11 @@ public class Calibrator implements Runnable {
     // add the vehicle to the calibration pts list,
     // Organize it with the temperature.
     private void addCalibrationVehicles(List<Vehicle> vels) {
+        calibrationVehicles = new HashMap<>();
         // add new vehicles to calibrationPts
         for (Vehicle vel : vels) {
-            //if no calibration wt infor is avaliable
-            if(vel.getCalibrateWt() == null){
-                vel.setCalibrateWt(filter.calibrateWeight);
-            }
+            //if no calibrsation wt infor is avaliable
+            vel.setCalibrateWt(filter.calibrateWeight);
             
             int temp =(int)(Math.round(((double)vel.getTemperature())/10)*10);
             if (calibrationVehicles.containsKey(temp)) {
@@ -351,7 +358,17 @@ public class Calibrator implements Runnable {
                 if(line == null) break;
                 vels.add(Vehicle.parseVehicle(line));
             }
-            addCalibrationVehicles(vels);
+            //addCalibrationVehicles(vels);
+            Platform.runLater(new Runnable(){
+            
+                @Override
+                public void run() {
+                    for(Vehicle vel:vels)
+                        vehicles.add(vel);
+                }
+            });
+            
+            writeToTextView("File "+ fid.getName()+" loaded sucessfully!\n");
 
 
         }catch (Exception e){
@@ -399,7 +416,7 @@ public class Calibrator implements Runnable {
                     if(times-- == 0) break;
                     bufferTx.add(generateCmd(COM_SDIP_UPDATE_TABLE_IN_RAM, dataInBytes));
                     //wait until received a respond
-                    System.out.println("write to table: sensor "+sensorNo +","+speed +"kmh");
+                    writeToTextView("write to table: sensor "+sensorNo +","+speed +"kmh.\n");
                     synchronized(LaneMonitor.laneLock){
                         LaneMonitor.laneLock.wait(10000);
                         if(LaneMonitor.notified.get()){
@@ -475,7 +492,8 @@ public class Calibrator implements Runnable {
             Byte[] data = new Byte[1];
             data[0] = Byte.valueOf((byte)filter.getFaixa());
             bufferTx.add(generateCmd(COM_SDIP_SAVE_IN_FLASH, data));
-            System.out.println("Write to Flash "+(3-times)+" time...");
+            
+            writeToTextView("Write to Flash "+(3-times)+" time...\n");
 
             synchronized(LaneMonitor.laneLock){
                 LaneMonitor.laneLock.wait(10000);
@@ -497,18 +515,10 @@ public class Calibrator implements Runnable {
         
             @Override
             public void run() {
-                
-                
+                String myStr =  str+Controller.caliInfoText.get();
+                Controller.caliInfoText.set(myStr);                
             }
         });
-    }
-
-    public static VehicleFilter getFilter() {
-        return filter;
-    }
-
-    public static void setFilter(VehicleFilter filter) {
-        Calibrator.filter = filter;
     }
 
     private boolean sendCmdDsp(byte cmd) throws InterruptedException {

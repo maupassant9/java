@@ -4,6 +4,8 @@ import javafx.application.Platform;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -51,18 +53,15 @@ public class Controller {
     @FXML
     public VBox vbox;
 
-    public SimpleStringProperty caliInfoText = new SimpleStringProperty();
+    public static SimpleStringProperty caliInfoText = new SimpleStringProperty();
 
     private ListView<Vehicle> listViewVehicles;
     private ListView<Vehicle> listViewVehiclesCalibration;
-    private ObservableList<Vehicle> vehicleList = 
-        FXCollections.observableArrayList(new ArrayList<Vehicle>());
-    private ObservableList<Vehicle> calibrateVehicleList = 
-        FXCollections.observableArrayList(new ArrayList<Vehicle>());
+    private ObservableList<Vehicle> vehicleList = FXCollections.observableArrayList(new ArrayList<Vehicle>());
+    private ObservableList<Vehicle> calibrateVehicleList = FXCollections.observableArrayList(new ArrayList<Vehicle>());
 
-    VehicleFilter filter = new VehicleFilter();
     LaneMonitor laneMonitor = new LaneMonitor(vehicleList);
-    
+
     private Button calibrateButton;
     public Button setCaliParameters;
 
@@ -96,6 +95,8 @@ public class Controller {
         //             250000.0);
         vehiclePanel2.clearPanel();
 
+        VehicleFilter.getVehicleFilter();
+
         listViewVehicles = new ListView<Vehicle>();
         listViewVehiclesCalibration = new ListView<Vehicle>();
         listViewVehicles.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -107,11 +108,42 @@ public class Controller {
         ListProperty<Vehicle> listPropertyForCalibrateVehicle = new SimpleListProperty<Vehicle>();
         listPropertyForCalibrateVehicle.set(calibrateVehicleList);
         listViewVehiclesCalibration.itemsProperty().bind(listPropertyForCalibrateVehicle);
-
         
+        HBox hbox2 = new HBox();
+        Label labelForListView1 = new Label("Vehicles List");
+        Label labelForListView2 = new Label("Calibrate vehicles List");
+        CheckBox checkBoxCaliState = new CheckBox("Enter into Calibration");
+        checkBoxCaliState.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+			@Override
+            public void changed(ObservableValue<? extends Boolean> arg0, 
+                                Boolean oldVal, Boolean newVal) {
+				if(newVal == true){
+                    //setup the calibration thread too
+                    Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
+                    cali.setFunction(Calibrator.ENTER_CALIBRATION_MODE);
+                    Thread caliThread = new Thread(cali);
+                    caliThread.setDaemon(true);
+                    caliThread.start();
+                } else {
+                    //setup the calibration thread too
+                    Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
+                    cali.setFunction(Calibrator.LEFT_CALI_STATE);
+                    Thread caliThread = new Thread(cali);
+                    caliThread.setDaemon(true);
+                    caliThread.start();
+                }
+			}
+        });
+
+        hbox2.getChildren().addAll(labelForListView1,labelForListView2,checkBoxCaliState);
+        hbox2.setAlignment(Pos.CENTER);
+        hbox2.setPadding(new Insets(0,30,0,30));
+        hbox2.setSpacing(200);
+        vbox.getChildren().add(hbox2);
+
 
         HBox hbox = new HBox();
-        
         Button arrowLeft = new Button("<-");
         Button arrowRight = new Button("->");
 
@@ -185,8 +217,7 @@ public class Controller {
                     alert.showAndWait();
                 } else {
                     Calibrator cali = Calibrator.getCalibrator(
-                            calibrateVehicleList,
-                            filter);
+                            calibrateVehicleList);
                     cali.setFunction(Calibrator.GENERATE_CALIBRATE_TABLE);
                     cali.setSaveButton(saveButton);
                     Thread caliThread = new Thread(cali);
@@ -207,7 +238,7 @@ public class Controller {
                 File fid = fc.showSaveDialog(saveButton.getScene().getWindow());
                 if(fid != null)
                 {
-                    Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList,filter);
+                    Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
                     cali.setFunction(Calibrator.SAVE_CALIBRATE_TABLE);
                     cali.setFile(fid);
                     cali.setSaveButton(sendButton);
@@ -225,7 +256,7 @@ public class Controller {
         sendButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
-                Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList,filter);
+                Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
                 cali.setFunction(Calibrator.SEND_CALIBRATE_TABLE);
                 Thread caliThread = new Thread(cali);
                 caliThread.start();
@@ -240,7 +271,7 @@ public class Controller {
                 fch.setInitialDirectory(new File(System.getProperty("user.dir")));
                 File fid = fch.showOpenDialog(loadButton.getScene().getWindow());
                 if(fid != null){
-                    Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList, filter);
+                    Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
                     cali.setFunction(Calibrator.LOAD_CALIBRATE_TABLE);
                     cali.setFile(fid);
                     Thread caliThread = new Thread(cali);
@@ -301,22 +332,16 @@ public class Controller {
         laneMonitor.setPanel1(vehiclePanel1);
         laneMonitor.setPanel2(vehiclePanel2);
         laneMonitor.setCtr(this);
-        laneMonitor.setFilter(filter);
         Thread laneMonitorThread = new Thread(laneMonitor);
         laneMonitorThread.setDaemon(true);
         laneMonitorThread.start();
-
-        //setup the calibration thread too
-        Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList,filter);
-        cali.setFunction(Calibrator.ENTER_CALIBRATION_MODE);
-        Thread caliThread = new Thread(cali);
-        caliThread.setDaemon(true);
-        caliThread.start();
     }
 
 
     //popup dialog
     public void popup(){
+
+        VehicleFilter filter = VehicleFilter.getVehicleFilter();
         final Stage dialog = new Stage();
         dialog.setTitle("Calibration Setting");
         Label vehicleInfo = new Label("Vehicle For Calibration:");
@@ -327,21 +352,30 @@ public class Controller {
         Label minSpeedInfo = new Label("Min. Speed:  ");
         Label asleNoInfo = new Label("Asle No.     ");
 
-        TextField tfWtInfo = new TextField();
+        TextField tfWtInfo = new TextField(filter.calibrateWeight+"");
         RadioButton faixaA = new RadioButton("Lane A");
         RadioButton faixaB = new RadioButton("Lane B");
         ToggleGroup group = new ToggleGroup();
         faixaA.setToggleGroup(group);
         faixaB.setToggleGroup(group);
-        TextField tfMaxWtInfo = new TextField();
-        TextField tfMinWtInfo = new TextField();
-        TextField tfMaxSpeedInfo = new TextField();
-        TextField tfMinSpeedInfo = new TextField();
+        if(filter.getFaixa() == 1){
+            faixaA.setSelected(true);
+        }
+        if(filter.getFaixa() == 2){
+            faixaB.setSelected(true);
+        }
+
+        TextField tfMaxWtInfo = new TextField(filter.getPesoTotalMaxKg()+"");
+        TextField tfMinWtInfo = new TextField(filter.getPesoTotalMinKg()+"");
+        TextField tfMaxSpeedInfo = new TextField(filter.getSpeedKmhRangeMax()+"");
+        TextField tfMinSpeedInfo = new TextField(filter.getSpeedKmhRangeMin()+"");
         ObservableList<Integer> eixoNoList = FXCollections.observableArrayList();
         for(int i = 2; i < 10; i++)
             eixoNoList.add(i);
         ComboBox<Integer> comboAsleNoInfo = new ComboBox<Integer>(eixoNoList);
+        comboAsleNoInfo.getSelectionModel().select(filter.getEixoNo());
         CheckBox useFilter = new CheckBox("Use filter");
+
 
         Button buttonOk = new Button("OK");
         Button buttonCancel = new Button("Cancel");
@@ -374,6 +408,9 @@ public class Controller {
         tfMinWtInfo.disableProperty().bind(useFilter.selectedProperty().not());
         comboAsleNoInfo.disableProperty().bind(useFilter.selectedProperty().not());
         
+        if(filter.getSpeedKmhRangeMax() > 10000){
+            useFilter.setSelected(false);
+        }
 
         buttonCancel.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 
@@ -390,7 +427,7 @@ public class Controller {
                  try{
                     double maxVal, minVal;
 
-                    filter = new VehicleFilter();
+                    VehicleFilter filter = VehicleFilter.getVehicleFilter();
                     filter.calibrateWeight = Double.parseDouble(tfWtInfo.getText());
                     if(faixaA.isSelected()) filter.setFaixa(1);
                     if(faixaB.isSelected()) filter.setFaixa(2);
@@ -400,8 +437,6 @@ public class Controller {
                         maxVal = Double.parseDouble(tfMaxWtInfo.getText());
                         minVal = Double.parseDouble(tfMinWtInfo.getText());
                         if(maxVal <= minVal) throw new Exception();
-                        if(filter.calibrateWeight > maxVal) throw new Exception();
-                        if(filter.calibrateWeight < minVal) throw new Exception();
                         filter.setPesoTotalMaxKg(maxVal);
                         filter.setPesoTotalMinKg(minVal);
 
@@ -410,12 +445,12 @@ public class Controller {
                         if(maxVal <= minVal) throw new Exception();
                         filter.setSpeedKmhRangeMax(maxVal);
                         filter.setSpeedKmhRangeMin(minVal);
+                    } else {
+                        filter.clear();
                     }
 
                     //set filter
-                    laneMonitor.setFilter(filter);
-                    Calibrator.setFilter(filter);
-                    Calibrator.getCalibrator(calibrateVehicleList,filter);
+                    Calibrator.getCalibrator(calibrateVehicleList);
                     dialog.close();
                     calibrateButton.setDisable(false);
                 } catch(Exception e){

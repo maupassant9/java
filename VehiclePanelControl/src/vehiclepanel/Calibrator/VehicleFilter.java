@@ -13,8 +13,10 @@ public class VehicleFilter{
 
     public double calibrateWeight;
 
+    private static VehicleFilter myFilter = null;
 
-    public VehicleFilter()
+
+    private VehicleFilter()
     {
         speedKmhRangeMin = 0;
         speedKmhRangeMax = Double.MAX_VALUE;
@@ -24,6 +26,27 @@ public class VehicleFilter{
 
         eixoNo = 0; //pass all kind of vehicle
         faixa = 0; //pass all lane
+    }
+
+
+    public void clear()
+    {
+        speedKmhRangeMin = 0;
+        speedKmhRangeMax = Double.MAX_VALUE;
+
+        pesoTotalMaxKg = Double.MAX_VALUE;
+        pesoTotalMinKg = 0;
+
+        eixoNo = 0; //pass all kind of vehicle
+        faixa = 0; //pass all lane
+    }
+
+    public static VehicleFilter getVehicleFilter()
+    {
+        if(myFilter == null){
+            myFilter = new VehicleFilter();
+        } 
+        return myFilter;
     }
 
 
