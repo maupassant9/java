@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
@@ -168,6 +167,8 @@ public class Calibrator implements Runnable {
 
     }
 
+
+    //Set which function to execute
     public void setFunction(Integer function) {
         this.function = function;
     }
@@ -264,8 +265,6 @@ public class Calibrator implements Runnable {
                 }
 
             }
-
-
             table_speed[idx] = (int) (factor * 100);
         }
 

@@ -186,10 +186,11 @@ public class LaneMonitor implements Runnable {
     private void clrPanel(VehiclePanel panel) {
         if (panel != null) {
             if ((panel.getVehicle() != null)) {
+                Vehicle vel = panel.getVehicle();
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        vehicleList.add(panel.getVehicle());
+                        vehicleList.add(vel);
                         panel.clearPanel();
                     }
                 });

@@ -68,6 +68,7 @@ public class Controller {
     @FXML
     private void initialize() throws Exception {
 
+        
         VehiclePanel vehiclePanel1 = new VehiclePanel();
         
         vbox.getChildren().add(vehiclePanel1);
@@ -110,6 +111,7 @@ public class Controller {
         listViewVehiclesCalibration.itemsProperty().bind(listPropertyForCalibrateVehicle);
         
         HBox hbox2 = new HBox();
+        hbox2.setStyle("-fx-font-size: 12pt");
         Label labelForListView1 = new Label("Vehicles List");
         Label labelForListView2 = new Label("Calibrate vehicles List");
         CheckBox checkBoxCaliState = new CheckBox("Enter into Calibration");
@@ -137,9 +139,9 @@ public class Controller {
         });
 
         hbox2.getChildren().addAll(labelForListView1,labelForListView2,checkBoxCaliState);
-        hbox2.setAlignment(Pos.CENTER);
-        hbox2.setPadding(new Insets(0,30,0,30));
-        hbox2.setSpacing(200);
+        hbox2.setAlignment(Pos.CENTER_LEFT);
+        hbox2.setPadding(new Insets(10,40,0,10));
+        hbox2.setSpacing(80);
         vbox.getChildren().add(hbox2);
 
 
@@ -198,6 +200,7 @@ public class Controller {
         calibrateInfo.setMaxHeight(100);
         hbox.getChildren().add(calibrateInfo);
 
+        //Set the event handler for all the buttons
         setCaliParameters.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override

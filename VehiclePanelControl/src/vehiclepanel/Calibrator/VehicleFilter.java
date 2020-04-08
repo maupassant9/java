@@ -38,7 +38,6 @@ public class VehicleFilter{
         pesoTotalMinKg = 0;
 
         eixoNo = 0; //pass all kind of vehicle
-        faixa = 0; //pass all lane
     }
 
     public static VehicleFilter getVehicleFilter()
