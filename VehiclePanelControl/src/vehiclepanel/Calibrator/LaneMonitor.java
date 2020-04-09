@@ -7,6 +7,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import vehiclepanel.vehiclePanelControl.VehiclePanel;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import vehiclepanel.*;
 import vehiclepanel.CommSDIP.*;
 
@@ -132,29 +136,24 @@ public class LaneMonitor implements Runnable {
                         
                         break;
                     case COM_TABLE_RSVED_OK:
-                        synchronized(laneLock){
-                            notified.set(true);
-                            laneLock.notifyAll();
-                        }
                         writeToTextView("Table updated...\n");
+                        waitForResp();
                         break;
                     case COM_WRITE_FLASH_OK:
-                        synchronized(laneLock){
-                            notified.set(true);
-                            laneLock.notifyAll();
-                        }
+                        waitForResp();
                         writeToTextView("Flash updated OK.\n");
                         break;
                     case COM_RESET_DSP:
+                        waitForResp();
                         writeToTextView("DSP POWERED OFF ... \n");
+                        break;
                     case COM_RELEASE_DSP:
+                        waitForResp();
                         writeToTextView("DSP POWERED ON AGAIN ...\n");
+                        break;
                     case COM_RELEASE_CALIBRATION_MODE:
+                        waitForResp();
                         writeToTextView("Leave calibration mode ...\n");
-                        synchronized(laneLock){
-                            notified.set(true);
-                            laneLock.notifyAll();
-                        }
                         break;
                 }
             }
@@ -162,7 +161,13 @@ public class LaneMonitor implements Runnable {
            
         }
     }
-
+    private void waitForResp()
+    {
+        synchronized(laneLock){
+            notified.set(true);
+            laneLock.notifyAll();
+        }
+    }
     // check if there is any vehicle in waiting list to be shown
     // if yes, show the vehicle, and remove it from the waiting list
     private void showOnPanel(ArrayList<Vehicle> ls, VehiclePanel panel) {
@@ -206,6 +211,7 @@ public class LaneMonitor implements Runnable {
     private void addVehicles(ArrayList<Byte> vehicleSerialData) throws Exception {
 
         Vehicle vehicle = generateVehicle(vehicleSerialData);
+        if(vehicle == null) return;
         filter = VehicleFilter.getVehicleFilter();
 
         if(filter != null)
@@ -331,5 +337,4 @@ public class LaneMonitor implements Runnable {
             }
         });
     }
-
 }

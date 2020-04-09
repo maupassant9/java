@@ -11,7 +11,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -88,7 +93,7 @@ public class Calibrator implements Runnable {
         return myown;
     }
 
-    @Override
+    //@Override
     public void run() {
 
         // get the correct bufferTx
@@ -96,13 +101,13 @@ public class Calibrator implements Runnable {
             CommThread comm = null;
             while (true) {
                 comm = CommThread.getCommThread();
+                if (comm != null)
+                break;
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                if (comm != null)
-                    break;
             }
             bufferTx = CommThread.bufferTx;
         }
@@ -390,6 +395,7 @@ public class Calibrator implements Runnable {
     private boolean sendTable() throws InterruptedException
     {
         boolean res = true;
+        double progress = 0;
         for(int sensorNo = 1; sensorNo < 4; sensorNo++)
         {
             HashMap<Integer,Integer[]> tables = calibrationTable.get(sensorNo);
@@ -420,6 +426,9 @@ public class Calibrator implements Runnable {
                         LaneMonitor.laneLock.wait(10000);
                         if(LaneMonitor.notified.get()){
                             LaneMonitor.notified.set(false);
+                            updateMessage("Write to table sensor" +
+                                    sensorNo+" , " + speed+" kmh sucessfully!");
+                            updateProgress(progress++, 16);
                             break;
                         }
                     }
@@ -498,6 +507,8 @@ public class Calibrator implements Runnable {
                 LaneMonitor.laneLock.wait(10000);
                 if(LaneMonitor.notified.get()){
                     LaneMonitor.notified.set(false);
+                    updateProgress(16, 16);
+                    updateMessage("Write to Flash sucessfully!");
                     break;
                 }
             }
@@ -539,5 +550,39 @@ public class Calibrator implements Runnable {
         return true;
     }
 
+    private static DoubleProperty progressProperty = new SimpleDoubleProperty();
+    private static StringProperty messageProperty = new SimpleStringProperty();
+    
+    private void updateProgress(double num1, double num2)
+    {
+        double progress = num1/num2;
+        Platform.runLater(new Runnable(){
+        
+            @Override
+            public void run() {
+                progressProperty.set(progress);
+            }
+        });
+    }
+
+    public static DoubleProperty getProgressProperty() {
+        return progressProperty;
+    }
+
+    private void updateMessage(String str)
+    {
+        Platform.runLater(new Runnable(){
+        
+            @Override
+            public void run() {
+                messageProperty.set(str);
+            }
+        });
+        
+    }
+    
+    public static StringProperty getMessageProperty(){
+        return messageProperty;
+    }
     
 }

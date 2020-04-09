@@ -8,6 +8,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -22,6 +24,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Separator;
@@ -47,6 +50,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Controller {
 
@@ -64,6 +68,7 @@ public class Controller {
 
     private Button calibrateButton;
     public Button setCaliParameters;
+    public static AtomicBoolean writeToSdipFinished = new AtomicBoolean(false);
 
     @FXML
     private void initialize() throws Exception {
@@ -138,10 +143,14 @@ public class Controller {
 			}
         });
 
-        hbox2.getChildren().addAll(labelForListView1,labelForListView2,checkBoxCaliState);
+        hbox2.getChildren().addAll(labelForListView1,
+                new Label("                       "),
+                labelForListView2,
+                new Label("    "),
+                checkBoxCaliState);
         hbox2.setAlignment(Pos.CENTER_LEFT);
-        hbox2.setPadding(new Insets(10,40,0,10));
-        hbox2.setSpacing(80);
+        hbox2.setPadding(new Insets(10,50,0,50));
+        hbox2.setSpacing(40);
         vbox.getChildren().add(hbox2);
 
 
@@ -162,8 +171,8 @@ public class Controller {
         hbox.prefHeightProperty().bind(vbox.prefHeightProperty());
         VBox.setVgrow(hbox, Priority.ALWAYS);
         hbox.setSpacing(10);
-        hbox.setPadding(new Insets(0, 20, 0, 10));
-        hbox.setAlignment(Pos.BOTTOM_LEFT);
+        hbox.setPadding(new Insets(0, 10, 0, 10));
+        hbox.setAlignment(Pos.TOP_LEFT);
         
         vbox.getChildren().add(new Label(""));
         setCaliParameters = new Button("Set Paras");
@@ -181,23 +190,37 @@ public class Controller {
         Button loadButton = new Button("Load Vehicle");
         loadButton.setFont(new Font(10.0));
         loadButton.setDisable(false);
+        ProgressBar pb = new ProgressBar();
+        pb.setMaxSize(70, 10);
+        pb.setProgress(0);
         
         VBox vbox2 = new VBox(setCaliParameters,calibrateButton,
-            saveButton,sendButton,loadButton);
-        vbox2.autosize();
+            saveButton,sendButton,pb,loadButton);
+        VBox.setVgrow(saveButton, Priority.ALWAYS);
+        VBox.setVgrow(sendButton, Priority.ALWAYS);
+        VBox.setVgrow(setCaliParameters,Priority.ALWAYS);
+        VBox.setVgrow(calibrateButton, Priority.ALWAYS);
+        saveButton.setMaxWidth(Double.MAX_VALUE);
+        sendButton.setMaxWidth(Double.MAX_VALUE);
+        calibrateButton.setMaxWidth(Double.MAX_VALUE);
+        setCaliParameters.setMaxWidth(Double.MAX_VALUE);
+        
+        //vbox2.autosize();
         vbox2.setSpacing(5);
         hbox.getChildren().add(vbox2);
 
         TextArea calibrateInfo = new TextArea();
         calibrateInfo.setWrapText(true);
+        calibrateInfo.setFont(new Font(10));
         calibrateInfo.textProperty().bind(caliInfoText);
         caliInfoText.set("Initialized ok...");
-        calibrateInfo.setPrefWidth(120);
-        calibrateInfo.setPrefHeight(100);
-        calibrateInfo.setMinWidth(120);
-        calibrateInfo.setMinHeight(100);
-        calibrateInfo.setMaxWidth(120);
-        calibrateInfo.setMaxHeight(100);
+        calibrateInfo.setPrefWidth(130);
+        calibrateInfo.setPrefHeight(150);
+        calibrateInfo.setMinWidth(130);
+        calibrateInfo.setMinHeight(150);
+        calibrateInfo.setMaxWidth(130);
+        calibrateInfo.setMaxHeight(150);
+        //calibrateInfo.
         hbox.getChildren().add(calibrateInfo);
 
         //Set the event handler for all the buttons
@@ -263,6 +286,7 @@ public class Controller {
                 cali.setFunction(Calibrator.SEND_CALIBRATE_TABLE);
                 Thread caliThread = new Thread(cali);
                 caliThread.start();
+                pb.progressProperty().bind(Calibrator.getProgressProperty());
 			}
         });
 
@@ -331,13 +355,14 @@ public class Controller {
             }
         }); 
 
-        //create the calibrator thread
+        //create the Lane Monitor thread
         laneMonitor.setPanel1(vehiclePanel1);
         laneMonitor.setPanel2(vehiclePanel2);
         laneMonitor.setCtr(this);
         Thread laneMonitorThread = new Thread(laneMonitor);
         laneMonitorThread.setDaemon(true);
         laneMonitorThread.start();
+
     }
 
 
@@ -468,6 +493,4 @@ public class Controller {
         dialog.setResizable(false);
         dialog.show();
     }
-
-    
 }
