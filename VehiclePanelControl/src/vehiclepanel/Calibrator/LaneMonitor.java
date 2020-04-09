@@ -7,10 +7,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import vehiclepanel.vehiclePanelControl.VehiclePanel;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import vehiclepanel.*;
 import vehiclepanel.CommSDIP.*;
 

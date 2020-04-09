@@ -13,10 +13,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -294,6 +291,7 @@ public class Calibrator implements Runnable {
     }
 
     // get temperature index in the calibrated vehicle
+    // function used by generate table
     private int[] getIndex(int temp, ArrayList<Integer> list) {
         int[] idxs = new int[2];
         idxs[1] = 0;
@@ -315,6 +313,8 @@ public class Calibrator implements Runnable {
         return idxs;
     }
 
+    //save the calibration vehicle informations to
+    //some files.
     private void saveCalibrationInfos() 
     {
         if(fid != null){
@@ -362,6 +362,7 @@ public class Calibrator implements Runnable {
                 if(line == null) break;
                 vels.add(Vehicle.parseVehicle(line));
             }
+            in.close();
             //addCalibrationVehicles(vels);
             Platform.runLater(new Runnable(){
             
@@ -426,8 +427,6 @@ public class Calibrator implements Runnable {
                         LaneMonitor.laneLock.wait(10000);
                         if(LaneMonitor.notified.get()){
                             LaneMonitor.notified.set(false);
-                            updateMessage("Write to table sensor" +
-                                    sensorNo+" , " + speed+" kmh sucessfully!");
                             updateProgress(progress++, 16);
                             break;
                         }
@@ -508,7 +507,6 @@ public class Calibrator implements Runnable {
                 if(LaneMonitor.notified.get()){
                     LaneMonitor.notified.set(false);
                     updateProgress(16, 16);
-                    updateMessage("Write to Flash sucessfully!");
                     break;
                 }
             }
@@ -551,7 +549,6 @@ public class Calibrator implements Runnable {
     }
 
     private static DoubleProperty progressProperty = new SimpleDoubleProperty();
-    private static StringProperty messageProperty = new SimpleStringProperty();
     
     private void updateProgress(double num1, double num2)
     {
@@ -568,21 +565,4 @@ public class Calibrator implements Runnable {
     public static DoubleProperty getProgressProperty() {
         return progressProperty;
     }
-
-    private void updateMessage(String str)
-    {
-        Platform.runLater(new Runnable(){
-        
-            @Override
-            public void run() {
-                messageProperty.set(str);
-            }
-        });
-        
-    }
-    
-    public static StringProperty getMessageProperty(){
-        return messageProperty;
-    }
-    
 }
