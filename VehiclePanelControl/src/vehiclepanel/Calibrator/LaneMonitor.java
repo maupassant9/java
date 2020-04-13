@@ -125,7 +125,7 @@ public class LaneMonitor implements Runnable {
                         
                             @Override
                             public void run() {
-                                ctr.setCaliParameters.setDisable(false);
+                                ctr.settingButton.setDisable(false);
                                 Controller.caliInfoText.set("Enter into Calibration Mode...");
                             }
                         });

@@ -14,20 +14,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -61,8 +48,8 @@ public class Controller {
 
     LaneMonitor laneMonitor = new LaneMonitor(vehicleList);
 
-    private Button calibrateButton;
-    public Button setCaliParameters;
+    private Button saveButton;
+    public Button settingButton;
     public static AtomicBoolean writeToSdipFinished = new AtomicBoolean(false);
 
     @FXML
@@ -154,13 +141,22 @@ public class Controller {
         hbox.setAlignment(Pos.TOP_LEFT);
         
         vbox.getChildren().add(new Label(""));
-        setCaliParameters = new Button("Set Paras");
-        setCaliParameters.setFont(new Font(10.0));
-        setCaliParameters.setDisable(true);
-        calibrateButton = new Button("Gen Table");
-        calibrateButton.setFont(new Font(10.0));
-        calibrateButton.setDisable(true);
-        Button saveButton = new Button("Save Table");
+        settingButton = new Button("Settin" +
+                "g");
+        settingButton.setFont(new Font(10.0));
+        settingButton.setDisable(true);
+        MenuButton SDIPSettingButton = new MenuButton("SDIP Setting");
+        SDIPSettingButton.setFont(new Font(10.0));
+        SDIPSettingButton.setDisable(false);
+        MenuItem sdipRst = new MenuItem("Reset SDIP");
+        sdipRst.setOnAction(evt->{
+
+        });
+        MenuItem sdipCap = new MenuItem("Set Capacitor Bank");
+        SDIPSettingButton.getItems().add(sdipRst);
+        SDIPSettingButton.getItems().add(sdipCap);
+
+        saveButton = new Button("Save Table");
         saveButton.setFont(new Font(10.0));
         saveButton.setDisable(true);
         Button sendButton = new Button("Send Table");
@@ -170,19 +166,22 @@ public class Controller {
         loadButton.setFont(new Font(10.0));
         loadButton.setDisable(false);
         ProgressBar pb = new ProgressBar();
-        pb.setMaxSize(70, 10);
+        pb.setMaxSize(80, 10);
+        VBox.setVgrow(pb,Priority.ALWAYS);
         pb.setProgress(0);
         
-        VBox vbox2 = new VBox(setCaliParameters,calibrateButton,
-            saveButton,sendButton,pb,loadButton);
+        VBox vbox2 = new VBox(settingButton,loadButton,
+            saveButton,sendButton,pb,SDIPSettingButton);
         VBox.setVgrow(saveButton, Priority.ALWAYS);
         VBox.setVgrow(sendButton, Priority.ALWAYS);
-        VBox.setVgrow(setCaliParameters,Priority.ALWAYS);
-        VBox.setVgrow(calibrateButton, Priority.ALWAYS);
+        VBox.setVgrow(settingButton,Priority.ALWAYS);
+        VBox.setVgrow(SDIPSettingButton, Priority.ALWAYS);
+        VBox.setVgrow(loadButton, Priority.ALWAYS);
         saveButton.setMaxWidth(Double.MAX_VALUE);
         sendButton.setMaxWidth(Double.MAX_VALUE);
-        calibrateButton.setMaxWidth(Double.MAX_VALUE);
-        setCaliParameters.setMaxWidth(Double.MAX_VALUE);
+        SDIPSettingButton.setMaxWidth(Double.MAX_VALUE);
+        settingButton.setMaxWidth(Double.MAX_VALUE);
+        loadButton.setMaxWidth(Double.MAX_VALUE);
         
         //vbox2.autosize();
         vbox2.setSpacing(5);
@@ -203,48 +202,45 @@ public class Controller {
         hbox.getChildren().add(calibrateInfo);
 
         //Set the event handler for all the buttons
-        setCaliParameters.setOnAction(event -> popup());
-        
-        calibrateButton.setOnAction(event -> {
+        settingButton.setOnAction(event -> popup());
+        sdipRst.setOnAction(event -> {
+            Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
+            cali.setFunction(Calibrator.SDIP_DSP_RST);
+            Thread caliThread = new Thread(cali);
+            caliThread.start();
+        });
+        sdipCap.setOnAction(evt->{
 
+        });
+        saveButton.setOnAction(event -> {
             if(calibrateVehicleList.size() < 1){
                 Alert alert = new Alert(AlertType.ERROR,
-                    "No calibration itens selected.",
-                    ButtonType.OK);
+                        "No calibration itens selected.",
+                        ButtonType.OK);
                 alert.showAndWait();
-            } else {
-                Calibrator cali = Calibrator.getCalibrator(
-                        calibrateVehicleList);
-                cali.setFunction(Calibrator.GENERATE_CALIBRATE_TABLE);
-                cali.setSaveButton(saveButton);
-                Thread caliThread = new Thread(cali);
-                caliThread.setDaemon(true);
-                caliThread.start();
+            }else{
+                FileChooser fc = new FileChooser();
+                fc.setInitialDirectory(new File(System.getProperty("user.dir")));
+                fc.setTitle("Save the calibration table:");
+
+                File fid = fc.showSaveDialog(saveButton.getScene().getWindow());
+                if(fid != null)
+                {
+                    Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
+                    cali.setFunction(Calibrator.SAVE_CALIBRATE_TABLE);
+                    cali.setFile(fid);
+                    cali.setSaveButton(sendButton);
+                    Thread caliThread = new Thread(cali);
+                    caliThread.start();
+                } else {
+                    Alert alert = new Alert(AlertType.ERROR,
+                            "Please select the right file.",
+                            ButtonType.OK);
+                    alert.showAndWait();
+                }
             }
+
         });
-
-        saveButton.setOnAction(event -> {
-            FileChooser fc = new FileChooser();
-            fc.setInitialDirectory(new File(System.getProperty("user.dir")));
-            fc.setTitle("Save the calibration table:");
-
-            File fid = fc.showSaveDialog(saveButton.getScene().getWindow());
-            if(fid != null)
-            {
-                Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
-                cali.setFunction(Calibrator.SAVE_CALIBRATE_TABLE);
-                cali.setFile(fid);
-                cali.setSaveButton(sendButton);
-                Thread caliThread = new Thread(cali);
-                caliThread.start();
-            } else {
-                Alert alert = new Alert(AlertType.ERROR,
-                    "Please select the right file.",
-                    ButtonType.OK);
-                alert.showAndWait();
-            }
-        });
-
         sendButton.setOnAction(event -> {
             Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
             cali.setFunction(Calibrator.SEND_CALIBRATE_TABLE);
@@ -252,7 +248,6 @@ public class Controller {
             caliThread.start();
             pb.progressProperty().bind(Calibrator.getProgressProperty());
         });
-
         loadButton.setOnAction(event -> {
             FileChooser fch = new FileChooser();
             fch.setInitialDirectory(new File(System.getProperty("user.dir")));
@@ -265,7 +260,6 @@ public class Controller {
                 caliThread.start();
             }
         });
-
         arrowLeft.setOnAction(event -> {
             //remove the selected calibration vehicle list
             ObservableList<Integer> selectedIndices =
@@ -277,7 +271,6 @@ public class Controller {
             }
             calibrateVehicleList.removeAll(removeVehicles);
         });
-        
         arrowRight.setOnAction(event -> {
             //remove the selected vehicle list
             ObservableList<Integer> selectedIndices =
@@ -354,7 +347,8 @@ public class Controller {
         for(int i = 2; i < 10; i++)
             eixoNoList.add(i);
         ComboBox<Integer> comboAxisNoInfo = new ComboBox<Integer>(eixoNoList);
-        comboAxisNoInfo.getSelectionModel().select(filter.getAxisNo());
+        int idx = comboAxisNoInfo.getItems().indexOf(filter.getAxisNo());
+        comboAxisNoInfo.getSelectionModel().select(idx);
         CheckBox useFilter = new CheckBox("Use filter");
 
 
@@ -433,7 +427,7 @@ public class Controller {
                     //set filter
                     Calibrator.getCalibrator(calibrateVehicleList);
                     dialog.close();
-                    calibrateButton.setDisable(false);
+                    saveButton.setDisable(false);
                 } catch(Exception e){
                     Alert alert = new Alert(AlertType.ERROR,"Parameter error!!!",ButtonType.OK);
                     alert.showAndWait();

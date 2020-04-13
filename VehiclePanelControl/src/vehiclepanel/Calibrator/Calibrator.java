@@ -31,6 +31,7 @@ public class Calibrator implements Runnable {
     public static final int LOAD_CALIBRATE_TABLE = 0x04;
     public static final int ENTER_CALIBRATION_MODE = 0x05;
     public static final int LEFT_CALI_STATE = 0x06;
+    public static final int SDIP_DSP_RST = 0x07;
 
     // =======SDIP COMMANDS=========//
     private final byte COM_SDIP_ENTER_INTO_CALI = (byte) 0x60;
@@ -40,6 +41,7 @@ public class Calibrator implements Runnable {
     private final byte COM_SDIP_RESET_DSP = (byte)0x40;
     private final byte COM_SDIP_RELEASE_DSP = (byte)0x63;
 
+    private final int MULTIPLY_FACTOR_TABLE = 1000;
     private Integer function;
     private File fid = null;
 
@@ -118,12 +120,13 @@ public class Calibrator implements Runnable {
                 }
                 break;
             case SAVE_CALIBRATE_TABLE:
+                generateTable();
                 saveCalibrationInfos();
                 break;
             case GENERATE_CALIBRATE_TABLE:
-                generateTable();
+                //generateTable();
                 //Enable save table button
-                Platform.runLater(() -> button.setDisable(false));
+                //Platform.runLater(() -> button.setDisable(false));
                 break;
             case SEND_CALIBRATE_TABLE:
                 try {
@@ -151,6 +154,19 @@ public class Calibrator implements Runnable {
                     enterCalibrationMode();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                }
+                break;
+            case SDIP_DSP_RST:
+                try {
+                    //reset dsp for better communication
+                    if(!sendCmdDsp(COM_SDIP_RESET_DSP)) throw new Exception();
+                    if(!sendCmdDsp(COM_SDIP_RELEASE_DSP)) throw new Exception();
+                } catch (Exception e1) {
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(AlertType.ERROR,
+                                "Send to DSP error", ButtonType.OK);
+                        alert.showAndWait();
+                    });
                 }
                 break;
             default:
@@ -257,7 +273,7 @@ public class Calibrator implements Runnable {
                 }
 
             }
-            table_speed[idx] = (int) (factor * 100);
+            table_speed[idx] = (int) (factor * MULTIPLY_FACTOR_TABLE);
         }
 
         // just copy speed table from 40
