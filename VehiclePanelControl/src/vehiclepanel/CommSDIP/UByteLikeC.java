@@ -1,7 +1,7 @@
 package vehiclepanel.CommSDIP;
 //Internal Class for int
 //Add function like in C language
-//a simulation of addtion for an integer of 16 bits variable
+//a simulation of addition for an integer of 16 bits variable
 public class UByteLikeC {
 
     public int value;

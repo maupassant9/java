@@ -8,7 +8,7 @@ public class VehicleFilter{
     private double speedKmhRangeMin;
     private double pesoTotalMaxKg;
     private double pesoTotalMinKg;
-    private int eixoNo;
+    private int axisNo;
     private int faixa;
 
     public double calibrateWeight;
@@ -24,7 +24,7 @@ public class VehicleFilter{
         pesoTotalMaxKg = Double.MAX_VALUE;
         pesoTotalMinKg = 0;
 
-        eixoNo = 0; //pass all kind of vehicle
+        axisNo = 0; //pass all kind of vehicle
         faixa = 0; //pass all lane
     }
 
@@ -37,7 +37,7 @@ public class VehicleFilter{
         pesoTotalMaxKg = Double.MAX_VALUE;
         pesoTotalMinKg = 0;
 
-        eixoNo = 0; //pass all kind of vehicle
+        axisNo = 0; //pass all kind of vehicle
     }
 
     public static VehicleFilter getVehicleFilter()
@@ -65,8 +65,8 @@ public class VehicleFilter{
 
         
         //check for eixo no
-        if(eixoNo == 0) return vel;
-        if(vel.getEixoNumber() != eixoNo) return null;
+        if(axisNo == 0) return vel;
+        if(vel.getEixoNumber() != axisNo) return null;
         return vel;
     }
 
@@ -102,12 +102,12 @@ public class VehicleFilter{
         this.pesoTotalMinKg = pesoTotalMinKg;
     }
 
-    public int getEixoNo() {
-        return eixoNo;
+    public int getAxisNo() {
+        return axisNo;
     }
 
-    public void setEixoNo(int eixoNo) {
-        this.eixoNo = eixoNo;
+    public void setAxisNo(int axisNo) {
+        this.axisNo = axisNo;
     }
 
     public double getCalibrateWeight() {

@@ -8,7 +8,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -46,8 +45,6 @@ import vehiclepanel.vehiclePanelControl.VehiclePanel;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Controller {
@@ -76,27 +73,11 @@ public class Controller {
         
         vbox.getChildren().add(vehiclePanel1);
         vehiclePanel1.setName("Lane 1");
+        vehiclePanel1.clearPanel();
 
-        HashMap<Integer,ArrayList<Double>> eixoWtPerSensor = new HashMap<>();;
-        eixoWtPerSensor.put(1,new ArrayList<Double>(Arrays.asList(3.0,3.0)));
-        eixoWtPerSensor.put(2,new ArrayList<Double>(Arrays.asList(3.0,3.0)));
-        vehiclePanel1.displayPanel(new Vehicle("0",
-            new ArrayList<Double>(Arrays.asList(3.0, 3.0)),
-            28,
-            new ArrayList<Double>(Arrays.asList(3000.0, 2356.0, 3366.0)), 5356,10,1,
-            eixoWtPerSensor));
-        // vehiclePanel1.clearPanel();
         VehiclePanel vehiclePanel2 = new VehiclePanel();
-
         vehiclePanel2.setName("Lane 2");
         vbox.getChildren().add(vehiclePanel2);
-        // Vehicle vehicle2 = new Vehicle("0",
-        //     new ArrayList<Double>(
-        //         Arrays.asList(2.0, 2.5, 2.0, 1.5, 1.2, 1.4)), 
-        //     55,
-        //     new ArrayList<Double>(
-        //         Arrays.asList(3000.0, 2000.0, 1200.0, 888.0, 777.0, 666.8, 222.6)),
-        //             250000.0);
         vehiclePanel2.clearPanel();
 
         VehicleFilter.getVehicleFilter();
@@ -222,117 +203,91 @@ public class Controller {
         hbox.getChildren().add(calibrateInfo);
 
         //Set the event handler for all the buttons
-        setCaliParameters.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent arg0) {
-                popup();
-            }
-        });
+        setCaliParameters.setOnAction(event -> popup());
         
-        calibrateButton.setOnAction(new EventHandler<ActionEvent>(){
-            @Override
-            public void handle(ActionEvent arg0) {
+        calibrateButton.setOnAction(event -> {
 
-                if(calibrateVehicleList.size() < 1){
-                    Alert alert = new Alert(AlertType.ERROR, 
-                        "No calibration itens selected.", 
-                        ButtonType.OK);
-                    alert.showAndWait();
-                } else {
-                    Calibrator cali = Calibrator.getCalibrator(
-                            calibrateVehicleList);
-                    cali.setFunction(Calibrator.GENERATE_CALIBRATE_TABLE);
-                    cali.setSaveButton(saveButton);
-                    Thread caliThread = new Thread(cali);
-                    caliThread.setDaemon(true);
-                    caliThread.start();
-                }
+            if(calibrateVehicleList.size() < 1){
+                Alert alert = new Alert(AlertType.ERROR,
+                    "No calibration itens selected.",
+                    ButtonType.OK);
+                alert.showAndWait();
+            } else {
+                Calibrator cali = Calibrator.getCalibrator(
+                        calibrateVehicleList);
+                cali.setFunction(Calibrator.GENERATE_CALIBRATE_TABLE);
+                cali.setSaveButton(saveButton);
+                Thread caliThread = new Thread(cali);
+                caliThread.setDaemon(true);
+                caliThread.start();
             }
         });
 
-        saveButton.setOnAction(new EventHandler<ActionEvent>() {
+        saveButton.setOnAction(event -> {
+            FileChooser fc = new FileChooser();
+            fc.setInitialDirectory(new File(System.getProperty("user.dir")));
+            fc.setTitle("Save the calibration table:");
 
-            @Override
-            public void handle(ActionEvent arg0) {
-                FileChooser fc = new FileChooser();
-                fc.setInitialDirectory(new File(System.getProperty("user.dir")));
-                fc.setTitle("Save the calibration table:");
-
-                File fid = fc.showSaveDialog(saveButton.getScene().getWindow());
-                if(fid != null)
-                {
-                    Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
-                    cali.setFunction(Calibrator.SAVE_CALIBRATE_TABLE);
-                    cali.setFile(fid);
-                    cali.setSaveButton(sendButton);
-                    Thread caliThread = new Thread(cali);
-                    caliThread.start();
-                } else {
-                    Alert alert = new Alert(AlertType.ERROR,
-                        "Please select the right file.", 
-                        ButtonType.OK);
-                    alert.showAndWait();
-                }
-            }
-        });
-
-        sendButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent arg0) {
+            File fid = fc.showSaveDialog(saveButton.getScene().getWindow());
+            if(fid != null)
+            {
                 Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
-                cali.setFunction(Calibrator.SEND_CALIBRATE_TABLE);
+                cali.setFunction(Calibrator.SAVE_CALIBRATE_TABLE);
+                cali.setFile(fid);
+                cali.setSaveButton(sendButton);
                 Thread caliThread = new Thread(cali);
                 caliThread.start();
-                pb.progressProperty().bind(Calibrator.getProgressProperty());
-			}
-        });
-
-        loadButton.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent arg0) {
-                FileChooser fch = new FileChooser();
-                fch.setInitialDirectory(new File(System.getProperty("user.dir")));
-                File fid = fch.showOpenDialog(loadButton.getScene().getWindow());
-                if(fid != null){
-                    Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
-                    cali.setFunction(Calibrator.LOAD_CALIBRATE_TABLE);
-                    cali.setFile(fid);
-                    Thread caliThread = new Thread(cali);
-                    caliThread.start();
-                }
+            } else {
+                Alert alert = new Alert(AlertType.ERROR,
+                    "Please select the right file.",
+                    ButtonType.OK);
+                alert.showAndWait();
             }
         });
 
-        arrowLeft.setOnAction(new EventHandler<ActionEvent>(){
-            @Override
-            public void handle(ActionEvent event) {
-                //remove the selected calibration vehicle list
-                ObservableList<Integer> selectedIndices = 
-                    listViewVehiclesCalibration.getSelectionModel().getSelectedIndices();
-                ArrayList<Vehicle> removeVehicles = new ArrayList<>();
-                for(Integer idx: selectedIndices){
-                    vehicleList.add(calibrateVehicleList.get(idx));
-                    removeVehicles.add(calibrateVehicleList.get(idx));
-                }
-                calibrateVehicleList.removeAll(removeVehicles);
+        sendButton.setOnAction(event -> {
+            Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
+            cali.setFunction(Calibrator.SEND_CALIBRATE_TABLE);
+            Thread caliThread = new Thread(cali);
+            caliThread.start();
+            pb.progressProperty().bind(Calibrator.getProgressProperty());
+        });
+
+        loadButton.setOnAction(event -> {
+            FileChooser fch = new FileChooser();
+            fch.setInitialDirectory(new File(System.getProperty("user.dir")));
+            File fid = fch.showOpenDialog(loadButton.getScene().getWindow());
+            if(fid != null){
+                Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
+                cali.setFunction(Calibrator.LOAD_CALIBRATE_TABLE);
+                cali.setFile(fid);
+                Thread caliThread = new Thread(cali);
+                caliThread.start();
             }
+        });
+
+        arrowLeft.setOnAction(event -> {
+            //remove the selected calibration vehicle list
+            ObservableList<Integer> selectedIndices =
+                listViewVehiclesCalibration.getSelectionModel().getSelectedIndices();
+            ArrayList<Vehicle> removeVehicles = new ArrayList<>();
+            for(Integer idx: selectedIndices){
+                vehicleList.add(calibrateVehicleList.get(idx));
+                removeVehicles.add(calibrateVehicleList.get(idx));
+            }
+            calibrateVehicleList.removeAll(removeVehicles);
         });
         
-        arrowRight.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                //remove the selected vehicle list
-                ObservableList<Integer> selectedIndices = 
-                    listViewVehicles.getSelectionModel().getSelectedIndices();
-                ArrayList<Vehicle> removeVehicles = new ArrayList<>();
-                for(Integer idx: selectedIndices){
-                    calibrateVehicleList.add(vehicleList.get(idx));
-                    removeVehicles.add(vehicleList.get(idx));
-                }
-                vehicleList.removeAll(removeVehicles);
+        arrowRight.setOnAction(event -> {
+            //remove the selected vehicle list
+            ObservableList<Integer> selectedIndices =
+                listViewVehicles.getSelectionModel().getSelectedIndices();
+            ArrayList<Vehicle> removeVehicles = new ArrayList<>();
+            for(Integer idx: selectedIndices){
+                calibrateVehicleList.add(vehicleList.get(idx));
+                removeVehicles.add(vehicleList.get(idx));
             }
+            vehicleList.removeAll(removeVehicles);
         });
     
         //start the CommThread
@@ -376,7 +331,7 @@ public class Controller {
         Label minWtInfo = new Label("Min. Weight: ");
         Label maxSpeedInfo = new Label("Max. Speed:  ");
         Label minSpeedInfo = new Label("Min. Speed:  ");
-        Label asleNoInfo = new Label("Asle No.     ");
+        Label axisNoInfo = new Label("Axis No.     ");
 
         TextField tfWtInfo = new TextField(filter.calibrateWeight+"");
         RadioButton faixaA = new RadioButton("Lane A");
@@ -398,8 +353,8 @@ public class Controller {
         ObservableList<Integer> eixoNoList = FXCollections.observableArrayList();
         for(int i = 2; i < 10; i++)
             eixoNoList.add(i);
-        ComboBox<Integer> comboAsleNoInfo = new ComboBox<Integer>(eixoNoList);
-        comboAsleNoInfo.getSelectionModel().select(filter.getEixoNo());
+        ComboBox<Integer> comboAxisNoInfo = new ComboBox<Integer>(eixoNoList);
+        comboAxisNoInfo.getSelectionModel().select(filter.getAxisNo());
         CheckBox useFilter = new CheckBox("Use filter");
 
 
@@ -418,7 +373,7 @@ public class Controller {
         vboxMain.getChildren().add(new HBox(minSpeedInfo,tfMinSpeedInfo));
         vboxMain.getChildren().add(new HBox(maxWtInfo,tfMaxWtInfo));
         vboxMain.getChildren().add(new HBox(minWtInfo,tfMinWtInfo));
-        vboxMain.getChildren().add(new HBox(asleNoInfo, comboAsleNoInfo));
+        vboxMain.getChildren().add(new HBox(axisNoInfo, comboAxisNoInfo));
         vboxMain.getChildren().add(new Label(" "));
         HBox hbox1 = new HBox(buttonOk,buttonCancel);
         hbox1.setSpacing(50);
@@ -432,7 +387,7 @@ public class Controller {
         tfMinSpeedInfo.disableProperty().bind(useFilter.selectedProperty().not());
         tfMaxWtInfo.disableProperty().bind(useFilter.selectedProperty().not());
         tfMinWtInfo.disableProperty().bind(useFilter.selectedProperty().not());
-        comboAsleNoInfo.disableProperty().bind(useFilter.selectedProperty().not());
+        comboAxisNoInfo.disableProperty().bind(useFilter.selectedProperty().not());
         
         if(filter.getSpeedKmhRangeMax() > 10000){
             useFilter.setSelected(false);
@@ -458,8 +413,8 @@ public class Controller {
                     if(faixaA.isSelected()) filter.setFaixa(1);
                     if(faixaB.isSelected()) filter.setFaixa(2);
                     if(useFilter.isSelected()){
-                        filter.setEixoNo(comboAsleNoInfo.getItems().get(
-                            comboAsleNoInfo.getSelectionModel().getSelectedIndex()));
+                        filter.setAxisNo(comboAxisNoInfo.getItems().get(
+                            comboAxisNoInfo.getSelectionModel().getSelectedIndex()));
                         maxVal = Double.parseDouble(tfMaxWtInfo.getText());
                         minVal = Double.parseDouble(tfMinWtInfo.getText());
                         if(maxVal <= minVal) throw new Exception();

@@ -90,9 +90,9 @@ public class VehiclePanel extends Region {
 
     private void initGraphic(){
         vboxMain = new VBox();
-        vboxMain.setMaxSize(802, 182);
-        vboxMain.setMinSize(802, 182);
-        vboxMain.setPrefSize(802, 182);
+        vboxMain.setMaxSize(800, 182);
+        vboxMain.setMinSize(800, 182);
+        vboxMain.setPrefSize(800, 182);
         setBackground(new Background(new BackgroundFill(Color.LIGHTGREY,CornerRadii.EMPTY,new Insets(0))));
     }
 
@@ -138,15 +138,15 @@ public class VehiclePanel extends Region {
 
     private void addVehicleHead(HBox hbox){
 
-        Polyline head = new Polyline(new double[]{0.0,0.0,
-                VEHICLE_HEAD_WIDTH,VEHICLE_HEAD_HEIGHT,0,VEHICLE_HEAD_HEIGHT});
+        Polyline head = new Polyline(0.0,0.0,
+                VEHICLE_HEAD_WIDTH,VEHICLE_HEAD_HEIGHT,0,VEHICLE_HEAD_HEIGHT);
         head.setStrokeWidth(2);
         HBox.setMargin(head,new Insets(MARGIN_HEAD_TOP,0,0,0));
         hbox.getChildren().add(head);
     }
 
     private void addDirectionArrow(VBox vbox){
-        Polyline arrow = new Polyline(new double[]{0.0,5.0,40.0,5.0,40.0,0.0,45.0,5.0,40.0,10.0,40.0,5.0});
+        Polyline arrow = new Polyline(0.0,5.0,40.0,5.0,40.0,0.0,45.0,5.0,40.0,10.0,40.0,5.0);
         arrow.setStrokeWidth(2);
         //VBox.setMargin(arrow,new Insets(MARGIN_HEAD_TOP,0,0,0));
         vbox.getChildren().add(arrow);

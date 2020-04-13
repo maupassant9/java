@@ -121,12 +121,9 @@ public class CommThread implements Runnable {
                             "Program will be closed!!!",
                             ButtonType.OK);
                             alert.showAndWait();
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Window win = ctr.vbox.getScene().getWindow();
-                                    win.fireEvent(new WindowEvent(win, WindowEvent.WINDOW_CLOSE_REQUEST));
-                                }
+                            Platform.runLater(() -> {
+                                Window win = ctr.vbox.getScene().getWindow();
+                                win.fireEvent(new WindowEvent(win, WindowEvent.WINDOW_CLOSE_REQUEST));
                             });
                             break;
                         }
@@ -301,7 +298,5 @@ public class CommThread implements Runnable {
         frame.add((byte)crc.value);
         return frame;
     }
-
-
 }
 

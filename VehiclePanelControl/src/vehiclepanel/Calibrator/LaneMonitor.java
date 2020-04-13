@@ -157,6 +157,8 @@ public class LaneMonitor implements Runnable {
            
         }
     }
+
+    //wait for some response here
     private void waitForResp()
     {
         synchronized(laneLock){
@@ -170,13 +172,7 @@ public class LaneMonitor implements Runnable {
 
         if (ls.size() != 0) {
             Vehicle vehicle = ls.get(0);
-            Platform.runLater(new Runnable() {
-
-                @Override
-                public void run() {
-                    panel.displayPanel(vehicle);
-                }
-            });
+            Platform.runLater(() -> panel.displayPanel(vehicle));
             ls.remove(0);
         }
     }
@@ -188,12 +184,9 @@ public class LaneMonitor implements Runnable {
         if (panel != null) {
             if ((panel.getVehicle() != null)) {
                 Vehicle vel = panel.getVehicle();
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        vehicleList.add(vel);
-                        panel.clearPanel();
-                    }
+                Platform.runLater(() -> {
+                    vehicleList.add(vel);
+                    panel.clearPanel();
                 });
             }
         }

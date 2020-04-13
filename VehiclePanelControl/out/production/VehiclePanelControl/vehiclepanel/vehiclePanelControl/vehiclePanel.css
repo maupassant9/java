@@ -1,0 +1,46 @@
+
+
+#laneNameStyle{
+ -fx-text-fill: gold; /* black */
+ -fx-font-family: "Arial Black";
+ -fx-font-size: 20;
+}
+
+#SpeedStyle{
+ -fx-text-fill: beige; /* caribbean green */
+ -fx-font-family: "Arial Black";
+ -fx-font-size: 15;
+}
+
+#TempStyle{
+    -fx-text-fill: rgb(255, 0, 0); /* caribbean green */
+    -fx-font-family: "Arial Black";
+    -fx-font-size: 20;
+}
+
+#TotalWeightStyle{
+    -fx-text-fill: beige; /* caribbean green */
+    -fx-font-family: "Arial Black";
+    -fx-font-size: 15;
+}
+
+
+#EixoTextStyle{
+-fx-text-fill: beige; /* caribbean green */
+ -fx-font-family: "Arial Black";
+ -fx-font-size: 10;
+}
+
+#DistTextStyle{
+    -fx-text-fill: gold; /* caribbean green */
+    -fx-font-family: "Arial Black";
+    -fx-font-size: 10;
+}
+
+#DistInfoBg{
+-fx-background-color: gray;
+}
+
+#EixoInfoBg{
+-fx-background-color: gray;
+}

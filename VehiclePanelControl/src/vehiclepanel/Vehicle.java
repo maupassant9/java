@@ -242,6 +242,4 @@ public class Vehicle {
 
         return str.substring(0,str.length()-1);
     }
-
-
 }

@@ -51,13 +51,13 @@ public class Calibrator implements Runnable {
 
     // This is the raw data of the calibration vehicles, this data
     // should be saved in a file
-    // HashMap<Integer, ArrayList<Vehicel>>
+    // HashMap<Integer, ArrayList<Vehicle>>
     //            |___Temperature
     private HashMap<Integer, ArrayList<Vehicle>> calibrationVehicles;
 
     // This is the map that should be written into SDIP
     // HashMap<Integer, HashMap<Integer, Integer[]>>
-    //           |___Sesnor NO    |         |
+    //           |___Sensor NO    |         |
     //              Vehicle Speed_|         |
     //                           Table______|
     private HashMap<Integer, HashMap<Integer, Integer[]>> calibrationTable;
@@ -123,13 +123,7 @@ public class Calibrator implements Runnable {
             case GENERATE_CALIBRATE_TABLE:
                 generateTable();
                 //Enable save table button
-                Platform.runLater(new Runnable(){
-                
-                    @Override
-                    public void run() {
-                        button.setDisable(false);
-                    }
-                });
+                Platform.runLater(() -> button.setDisable(false));
                 break;
             case SEND_CALIBRATE_TABLE:
                 try {
@@ -140,14 +134,10 @@ public class Calibrator implements Runnable {
                     if(!writeToFlash()) throw new Exception();
                     if(!sendCmdDsp(COM_SDIP_RELEASE_DSP)) throw new Exception();
                 } catch (Exception e1) {
-                    Platform.runLater(new Runnable(){
-                    
-                        @Override
-                        public void run() {
-                            Alert alert = new Alert(AlertType.ERROR,
-                                "Write to SDIP error", ButtonType.OK);
-                            alert.showAndWait();
-                        }
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(AlertType.ERROR,
+                            "Write to SDIP error", ButtonType.OK);
+                        alert.showAndWait();
                     });
                     e1.printStackTrace();
                 }
@@ -196,7 +186,7 @@ public class Calibrator implements Runnable {
         calibrationVehicles = new HashMap<>();
         // add new vehicles to calibrationPts
         for (Vehicle vel : vels) {
-            //if no calibrsation wt infor is avaliable
+            //if no calibration wt infor is available
             vel.setCalibrateWt(filter.calibrateWeight);
             
             int temp =(int)(Math.round(((double)vel.getTemperature())/10)*10);
@@ -211,7 +201,7 @@ public class Calibrator implements Runnable {
     }
 
     // From above calibrationVehicles, generate calibrationPts,
-    // this is a temperary which is the processed calibration datas
+    // this is a temporary which is the processed calibration data
     // Return value: HashMap <Integer,Double> calibrationPts;
     //              Temperature___|     |_______calibration factor
     private HashMap<Integer, Double> generateCalibrationFactor(int sensorNo) {
@@ -236,7 +226,7 @@ public class Calibrator implements Runnable {
     }
 
     // generate calibration table for sensor of each speed using
-    // calibration point datas
+    // calibration point data
     private void generateTable(int sensorNo, HashMap<Integer, Double> caliPts) {
         
         HashMap<Integer, Integer[]> table = calibrationTable.get(sensorNo);
@@ -281,13 +271,7 @@ public class Calibrator implements Runnable {
         }
 
         //Enable save table button
-        Platform.runLater(new Runnable(){
-        
-            @Override
-            public void run() {
-                button.setDisable(false);
-            }
-        });
+        Platform.runLater(() -> button.setDisable(false));
     }
 
     // get temperature index in the calibrated vehicle
@@ -313,7 +297,7 @@ public class Calibrator implements Runnable {
         return idxs;
     }
 
-    //save the calibration vehicle informations to
+    //save the calibration vehicle information to
     //some files.
     private void saveCalibrationInfos() 
     {
@@ -373,7 +357,7 @@ public class Calibrator implements Runnable {
                 }
             });
             
-            writeToTextView("File "+ fid.getName()+" loaded sucessfully!\n");
+            writeToTextView("File "+ fid.getName()+" loaded successfully!\n");
 
 
         }catch (Exception e){
@@ -454,7 +438,7 @@ public class Calibrator implements Runnable {
         while(true){
             //send the command to enter calibration mode
             bufferTx.add(generateCmd(COM_SDIP_ENTER_INTO_CALI, null));
-            //wait until calibrated flag is ture
+            //wait until calibrated flag is true
             Thread.sleep(1000);
             if(LaneMonitor.calibrated) break;
         }
@@ -553,13 +537,7 @@ public class Calibrator implements Runnable {
     private void updateProgress(double num1, double num2)
     {
         double progress = num1/num2;
-        Platform.runLater(new Runnable(){
-        
-            @Override
-            public void run() {
-                progressProperty.set(progress);
-            }
-        });
+        Platform.runLater(() -> progressProperty.set(progress));
     }
 
     public static DoubleProperty getProgressProperty() {
