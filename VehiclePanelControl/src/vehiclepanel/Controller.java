@@ -39,6 +39,7 @@ public class Controller {
     @FXML
     public VBox vbox;
 
+
     public static SimpleStringProperty caliInfoText = new SimpleStringProperty();
 
     private ListView<Vehicle> listViewVehicles;

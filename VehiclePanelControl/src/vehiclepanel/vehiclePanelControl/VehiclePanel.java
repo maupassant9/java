@@ -39,6 +39,7 @@ public class VehiclePanel extends Region {
     private Vehicle vehicle;
 
     private VBox vboxMain;
+    private AnchorPane anchorPane;
 
 
     public VehiclePanel(Vehicle vehicle, String name){
@@ -89,11 +90,18 @@ public class VehiclePanel extends Region {
     }
 
     private void initGraphic(){
+//        anchorPane = new AnchorPane();
+//        anchorPane.setMaxSize(800,182);
+//        anchorPane.setMinSize(800,182);
+//        anchorPane.setPrefSize(800,182);
         vboxMain = new VBox();
         vboxMain.setMaxSize(800, 182);
         vboxMain.setMinSize(800, 182);
         vboxMain.setPrefSize(800, 182);
+//        anchorPane.getChildren().add(vboxMain);
+
         setBackground(new Background(new BackgroundFill(Color.LIGHTGREY,CornerRadii.EMPTY,new Insets(0))));
+
     }
 
 
@@ -259,7 +267,7 @@ public class VehiclePanel extends Region {
     public void printDimension()
     {
         System.out.println("vbox height = "+vboxMain.getHeight());
-        System.out.println("vbox width = " + vboxMain.getWidth());    
+        System.out.println("vbox width = " + vboxMain.getWidth());
     }
 
 

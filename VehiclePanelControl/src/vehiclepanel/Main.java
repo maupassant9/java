@@ -12,7 +12,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("vehiclePanelExample.fxml"));
         primaryStage.setTitle("VehiclePanel");
-        Scene scene = new Scene(root, 800,600);
+        Scene scene = new Scene(root, 790,600);
         // scene.getStylesheets().add(getClass().
         //         getResource("vehiclePanelControl/vehiclePanel.css").toExternalForm());
         primaryStage.setScene(scene);
