@@ -41,7 +41,7 @@ public class Calibrator implements Runnable {
     private final byte COM_SDIP_RESET_DSP = (byte)0x40;
     private final byte COM_SDIP_RELEASE_DSP = (byte)0x63;
 
-    private final int MULTIPLY_FACTOR_TABLE = 1000;
+    private final int MULTIPLY_FACTOR_TABLE = 100;
     private Integer function;
     private File fid = null;
 

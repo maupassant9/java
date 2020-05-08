@@ -14,13 +14,13 @@ public class LaneMonitor implements Runnable {
 
     private final byte COM_TEMPERATURE = (byte) 0x05;
     private final byte COM_VEHICLE_RECORD = (byte) 0x04;
-    private final byte COM_ENTER_CALIBRATION_MODE = (byte)0x60;
-    private final byte COM_RELEASE_CALIBRATION_MODE = (byte)0x61;
-    private final byte COM_TABLE_RSVED_OK = (byte)0x62;
-    private final byte COM_WRITE_FLASH_OK = (byte)0x58;
+    private final byte COM_ENTER_CALIBRATION_MODE = (byte) 0x60;
+    private final byte COM_RELEASE_CALIBRATION_MODE = (byte) 0x61;
+    private final byte COM_TABLE_RSVED_OK = (byte) 0x62;
+    private final byte COM_WRITE_FLASH_OK = (byte) 0x58;
     private final int MAX_WAITING_SIZE = 20;
-    private final int COM_RESET_DSP = (byte)0x40;
-    private final int COM_RELEASE_DSP = (byte)0x63;
+    private final int COM_RESET_DSP = (byte) 0x40;
+    private final int COM_RELEASE_DSP = (byte) 0x63;
 
     private static VehicleFilter filter;
     private Controller ctr;
@@ -40,7 +40,6 @@ public class LaneMonitor implements Runnable {
     public static volatile AtomicBoolean notified = new AtomicBoolean(false);
     public static volatile Object laneLock;
 
-
     public LaneMonitor(ObservableList<Vehicle> vehs) {
         vehicleList = vehs;
 
@@ -55,14 +54,13 @@ public class LaneMonitor implements Runnable {
         laneLock = new Object();
     }
 
-
-    private class PanelUpdater implements Runnable{
+    private class PanelUpdater implements Runnable {
 
         @Override
         public void run() {
-            while(true){
+            while (true) {
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(200);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -70,24 +68,21 @@ public class LaneMonitor implements Runnable {
                 // check if there is any vehicle should be shown on panel
                 cnterForPanel1--;
                 cnterForPanel2--;
-                if ((cnterForPanel1 == 0) ||
-                    (vehicleWaitForDisplayOnPanel1.size()>0) ) { 
+                if ((cnterForPanel1 == 0) || (vehicleWaitForDisplayOnPanel1.size() > 0)) {
                     clrPanel(panel1);
                     cnterForPanel1 = REFRESH_RATE_IN_0_5SEC;
                 }
-                if ((cnterForPanel2 == 0) ||
-                    (vehicleWaitForDisplayOnPanel2.size()>0)) { 
+                if ((cnterForPanel2 == 0) || (vehicleWaitForDisplayOnPanel2.size() > 0)) {
                     clrPanel(panel2);
                     cnterForPanel2 = REFRESH_RATE_IN_0_5SEC;
                 }
-    
+
                 showOnPanel(vehicleWaitForDisplayOnPanel1, panel1);
                 showOnPanel(vehicleWaitForDisplayOnPanel2, panel2);
             }
         }
 
     }
-
 
     @Override
     public void run() {
@@ -96,13 +91,13 @@ public class LaneMonitor implements Runnable {
         } catch (InterruptedException e1) {
             e1.printStackTrace();
         }
-        
+
         Thread panelUpdaterTh = new Thread(new PanelUpdater());
         panelUpdaterTh.setDaemon(true);
         panelUpdaterTh.start();
 
         while (true) {
-            //System.out.println("Calibrator executed...");
+            // System.out.println("Calibrator executed...");
             // read from bufferRx
             while (CommThread.bufferRx.size() != 0) {
                 ArrayList<Byte> rxDatas = CommThread.bufferRx.poll();
@@ -110,7 +105,7 @@ public class LaneMonitor implements Runnable {
                 {
                     case COM_TEMPERATURE:
                         currentTemp = rxDatas.get(4);
-                        writeToTextView("Current temperature is: "+currentTemp+"°C. \n");
+                        writeToTextView("Current temperature is: " + currentTemp + "°C. \n");
                         break;
                     case COM_VEHICLE_RECORD:
                         try {
@@ -121,15 +116,15 @@ public class LaneMonitor implements Runnable {
                         break;
                     case COM_ENTER_CALIBRATION_MODE:
                         calibrated = true;
-                        Platform.runLater(new Runnable(){
-                        
+                        Platform.runLater(new Runnable() {
+
                             @Override
                             public void run() {
                                 ctr.settingButton.setDisable(false);
                                 Controller.caliInfoText.set("Enter into Calibration Mode...");
                             }
                         });
-                        
+
                         break;
                     case COM_TABLE_RSVED_OK:
                         writeToTextView("Table updated...\n");
@@ -153,8 +148,11 @@ public class LaneMonitor implements Runnable {
                         break;
                 }
             }
-
-           
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                //do nothing 
+            }
         }
     }
 

@@ -159,7 +159,7 @@ public class Controller {
 
         saveButton = new Button("Save Table");
         saveButton.setFont(new Font(10.0));
-        saveButton.setDisable(true);
+        saveButton.setDisable(false);
         Button sendButton = new Button("Send Table");
         sendButton.setFont(new Font(10.0));
         sendButton.setDisable(true);
