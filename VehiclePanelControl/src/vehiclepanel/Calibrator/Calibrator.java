@@ -41,7 +41,7 @@ public class Calibrator implements Runnable {
     private final byte COM_SDIP_RESET_DSP = (byte)0x40;
     private final byte COM_SDIP_RELEASE_DSP = (byte)0x63;
 
-    private final int MULTIPLY_FACTOR_TABLE = 100;
+    private final int MULTIPLY_FACTOR_TABLE = 1000;
     private Integer function;
     private File fid = null;
 
@@ -203,9 +203,11 @@ public class Calibrator implements Runnable {
         // add new vehicles to calibrationPts
         for (Vehicle vel : vels) {
             //if no calibration wt infor is available
-            vel.setCalibrateWt(filter.calibrateWeight);
+            if(vel.getCalibrateWt() == null)
+                vel.setCalibrateWt(filter.calibrateWeight);
             
-            int temp =(int)(Math.round(((double)vel.getTemperature())/10)*10);
+            //int temp =(int)(Math.round(((double)vel.getTemperature())/10)*10);
+            int temp = (int) Math.round(((double)vel.getTemperature()));
             if (calibrationVehicles.containsKey(temp)) {
                 calibrationVehicles.get(temp).add(vel);
             } else {
@@ -250,8 +252,8 @@ public class Calibrator implements Runnable {
         Collections.sort(sortedKeySet);
 
         Integer[] table_speed = table.get(40);
-        for (int temp = -20; temp < 80; temp++) {
-            int idx = (temp + 20);
+        for (int temp = -19; temp <= 80; temp++) {
+            int idx = (temp + 19);
             double factor = 0;
             if(temp <= sortedKeySet.get(0)){ //if temp @ left most 
                 factor = caliPts.get(sortedKeySet.get(0));
@@ -285,6 +287,32 @@ public class Calibrator implements Runnable {
                 table_speed[idx] = table_40kmh[idx];
             }
         }
+        //write the table to file
+        String fname = System.getProperty("user.dir");
+        try {
+            FileWriter fwr = new FileWriter(fname+"\\table.log", true);
+            fwr.write(";===========Sensor = "+sensorNo+"============\n");
+            for(Integer speedKey:table.keySet())
+            {
+                fwr.write(";===========Speed = "+speedKey+"============\n");
+                int cnt = 0;
+                Integer[] tempTable = table.get(speedKey);
+                for(Integer val: tempTable){
+                    cnt++;
+                    fwr.write(""+val.toString()+", ");
+                    //System.out.println(val);
+                    if(cnt == 10){
+                        fwr.write('\n');
+                        cnt = 0;
+                    }
+                }
+            }
+            fwr.flush();
+            fwr.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
         //Enable save table button
         Platform.runLater(() -> button.setDisable(false));

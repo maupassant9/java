@@ -8,7 +8,8 @@
         "c:\\Program Files\\Java\\javafx-sdk-11.0.2\\lib\\javafx.media.jar",
         "c:\\Program Files\\Java\\javafx-sdk-11.0.2\\lib\\javafx.swing.jar",
         "c:\\Program Files\\Java\\javafx-sdk-11.0.2\\lib\\javafx.web.jar",
-        "c:\\Program Files\\Java\\javafx-sdk-11.0.2\\lib\\javafx-swt.jar"
+        "c:\\Program Files\\Java\\javafx-sdk-11.0.2\\lib\\javafx-swt.jar",
+        "lib/jSerialComm-2.6.0.jar"
     ],
     
     // "files.exclude": {

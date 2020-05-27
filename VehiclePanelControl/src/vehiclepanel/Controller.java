@@ -142,18 +142,15 @@ public class Controller {
         hbox.setAlignment(Pos.TOP_LEFT);
         
         vbox.getChildren().add(new Label(""));
-        settingButton = new Button("Settin" +
-                "g");
+        settingButton = new Button("Setting");
         settingButton.setFont(new Font(10.0));
         settingButton.setDisable(true);
         MenuButton SDIPSettingButton = new MenuButton("SDIP Setting");
         SDIPSettingButton.setFont(new Font(10.0));
         SDIPSettingButton.setDisable(false);
         MenuItem sdipRst = new MenuItem("Reset SDIP");
-        sdipRst.setOnAction(evt->{
-
-        });
         MenuItem sdipCap = new MenuItem("Set Capacitor Bank");
+
         SDIPSettingButton.getItems().add(sdipRst);
         SDIPSettingButton.getItems().add(sdipCap);
 

@@ -1,6 +1,10 @@
 package vehiclepanel.Calibrator;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -39,6 +43,11 @@ public class LaneMonitor implements Runnable {
     public static volatile boolean calibrated = false;
     public static volatile AtomicBoolean notified = new AtomicBoolean(false);
     public static volatile Object laneLock;
+
+    private static String velLogName = System.getProperty("user.dir") + "\\vehiclelog.txt";
+
+    //log file for lane information
+    private static String laneLogName = System.getProperty("user.dir")+"\\laneLog.txt";
 
     public LaneMonitor(ObservableList<Vehicle> vehs) {
         vehicleList = vehs;
@@ -96,7 +105,7 @@ public class LaneMonitor implements Runnable {
         panelUpdaterTh.setDaemon(true);
         panelUpdaterTh.start();
 
-        while (true) {
+        while(true) {
             // System.out.println("Calibrator executed...");
             // read from bufferRx
             while (CommThread.bufferRx.size() != 0) {
@@ -172,6 +181,7 @@ public class LaneMonitor implements Runnable {
             Vehicle vehicle = ls.get(0);
             Platform.runLater(() -> panel.displayPanel(vehicle));
             ls.remove(0);
+
         }
     }
 
@@ -200,6 +210,16 @@ public class LaneMonitor implements Runnable {
         Vehicle vehicle = generateVehicle(vehicleSerialData);
         if(vehicle == null) return;
         filter = VehicleFilter.getVehicleFilter();
+
+        //write to vehicle log
+        //try to save the file
+        try{
+            FileWriter fwr = new FileWriter(velLogName,true);
+            fwr.append(vehicle.toStringComplete()+"\n");
+            fwr.close();
+        }catch(IOException e){
+
+        }
 
         if(filter != null)
                 vehicle = filter.filter(vehicle);
@@ -314,13 +334,23 @@ public class LaneMonitor implements Runnable {
 
 
     private void writeToTextView(String str){
+        //write to log file
+        SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date(System.currentTimeMillis());
+        System.out.println();
+        try {
+            FileWriter fwr = new FileWriter(laneLogName,true);
+            fwr.append(formatter.format(date)+" > "+str);
+            fwr.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Platform.runLater(new Runnable(){
         
             @Override
             public void run() {
                 String mystr = str+Controller.caliInfoText.get();
                 Controller.caliInfoText.set(mystr);
-                
             }
         });
     }
