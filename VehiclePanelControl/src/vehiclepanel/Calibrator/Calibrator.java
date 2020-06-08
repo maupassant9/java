@@ -216,6 +216,11 @@ public class Calibrator implements Runnable {
                 calibrationVehicles.put(temp, array);
             }
         }
+
+        //the points should be validate here
+        //calibrationVehicles
+        //TODO: add code to validate the calibration
+
     }
 
     // From above calibrationVehicles, generate calibrationPts,
