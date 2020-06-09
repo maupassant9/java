@@ -154,10 +154,10 @@ public class Controller {
         SDIPSettingButton.getItems().add(sdipRst);
         SDIPSettingButton.getItems().add(sdipCap);
 
-        saveButton = new Button("Save Table");
+        saveButton = new Button("Save Vehicles");
         saveButton.setFont(new Font(10.0));
         saveButton.setDisable(false);
-        Button sendButton = new Button("Send Table");
+        Button sendButton = new Button("Calibrate");
         sendButton.setFont(new Font(10.0));
         sendButton.setDisable(true);
         Button loadButton = new Button("Load Vehicle");
@@ -240,6 +240,9 @@ public class Controller {
 
         });
         sendButton.setOnAction(event -> {
+            //TODO: Add here show dialog, for use select the calibration
+            // point to send and also show table to send
+
             Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
             cali.setFunction(Calibrator.SEND_CALIBRATE_TABLE);
             Thread caliThread = new Thread(cali);
@@ -438,4 +441,5 @@ public class Controller {
         dialog.setResizable(false);
         dialog.show();
     }
+
 }
