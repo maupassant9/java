@@ -1,6 +1,7 @@
 package vehiclepanel;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -25,55 +26,66 @@ public class CalibrationTableVisualizer implements Runnable {
 
     @Override
     public void run() {
-        Platform.runLater(new Runnable(){
-            
+        Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                //load the chart function
+              //load the chart function
                 Parent root = null;
-                try{
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("chart.fxml"));
-                    chartCtr = loader.getController();
-                    root = loader.load();
-                } catch (IOException e){
-                    e.printStackTrace();
+                try {
+                  FXMLLoader loader = new FXMLLoader(getClass().getResource("chart.fxml"));
+                  root = loader.load();
+                  chartCtr = loader.getController();
+
+                } catch (IOException e) {
+                  e.printStackTrace();
                 }
-                //TODO: chartCtr.vehicles = 
+
                 chartStage = new Stage();
                 chartStage.setTitle("Select Calibration Points ....");
                 chartStage.setScene(new Scene(root));
                 chartStage.setResizable(false);
-                chartStage.show();
+                chartStage.showAndWait();
 
                 chartStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 
-                    @Override
-                    public void handle(WindowEvent event) {
-                        // TODO Auto-generated method stub
-                        //here should close the thread used 
-
-                    }
-                    
+                  @Override
+                  public void handle(WindowEvent event) {
+                      // TODO Auto-generated method stub
+                      //here should close the thread used
+                  }
                 });
 
-
-                //is interrupted?
-            while(true){
-                try{
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            chartStage.fireEvent(
-                                    new WindowEvent(
-                                            chartStage,
-                                            WindowEvent.WINDOW_CLOSE_REQUEST));
-                        }
-                    });
-                    break;
-                }
             }
-        }});
+        });
+
+        //is interrupted?
+        try {
+            while(chartCtr == null)
+                Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //generate the array list and pass to controller
+        ArrayList<Vehicle> list = new ArrayList<Vehicle>();
+        for(Vehicle vel:vehicleList){
+            list.add(vel);
+        }
+        chartCtr.vehicles = list;
+        while(true){
+            try{
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        chartStage.fireEvent(
+                                new WindowEvent(
+                                        chartStage,
+                                        WindowEvent.WINDOW_CLOSE_REQUEST));
+                    }
+                });
+                break;
+            }
+        }
     }
 }

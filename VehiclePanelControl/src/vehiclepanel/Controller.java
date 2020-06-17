@@ -24,7 +24,7 @@ import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import vehiclepanel.Calibrator.Calibrator;
+import vehiclepanel.Calibrator.Communicator;
 import vehiclepanel.Calibrator.LaneMonitor;
 import vehiclepanel.Calibrator.VehicleFilter;
 import vehiclepanel.CommSDIP.CommThread;
@@ -94,15 +94,15 @@ public class Controller {
                                 Boolean oldVal, Boolean newVal) {
 				if(newVal == true){
                     //setup the calibration thread too
-                    Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
-                    cali.setFunction(Calibrator.ENTER_CALIBRATION_MODE);
+                    Communicator cali = Communicator.getCalibrator(calibrateVehicleList);
+                    cali.setFunction(Communicator.ENTER_CALIBRATION_MODE);
                     Thread caliThread = new Thread(cali);
                     caliThread.setDaemon(true);
                     caliThread.start();
                 } else {
                     //setup the calibration thread too
-                    Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
-                    cali.setFunction(Calibrator.LEFT_CALI_STATE);
+                    Communicator cali = Communicator.getCalibrator(calibrateVehicleList);
+                    cali.setFunction(Communicator.LEFT_CALI_STATE);
                     Thread caliThread = new Thread(cali);
                     caliThread.setDaemon(true);
                     caliThread.start();
@@ -202,8 +202,8 @@ public class Controller {
         //Set the event handler for all the buttons
         settingButton.setOnAction(event -> popup());
         sdipRst.setOnAction(event -> {
-            Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
-            cali.setFunction(Calibrator.SDIP_DSP_RST);
+            Communicator cali = Communicator.getCalibrator(calibrateVehicleList);
+            cali.setFunction(Communicator.SDIP_DSP_RST);
             Thread caliThread = new Thread(cali);
             caliThread.start();
         });
@@ -224,8 +224,8 @@ public class Controller {
                 File fid = fc.showSaveDialog(saveButton.getScene().getWindow());
                 if(fid != null)
                 {
-                    Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
-                    cali.setFunction(Calibrator.SAVE_CALIBRATE_TABLE);
+                    Communicator cali = Communicator.getCalibrator(calibrateVehicleList);
+                    cali.setFunction(Communicator.SAVE_CALIBRATE_TABLE);
                     cali.setFile(fid);
                     cali.setSaveButton(sendButton);
                     Thread caliThread = new Thread(cali);
@@ -242,20 +242,24 @@ public class Controller {
         sendButton.setOnAction(event -> {
             //TODO: Add here show dialog, for use select the calibration
             // point to send and also show table to send
-
-            Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
-            cali.setFunction(Calibrator.SEND_CALIBRATE_TABLE);
-            Thread caliThread = new Thread(cali);
-            caliThread.start();
-            pb.progressProperty().bind(Calibrator.getProgressProperty());
+            CalibrationTableVisualizer chartVisualizer = new CalibrationTableVisualizer(calibrateVehicleList);
+            Thread chartTh = new Thread(chartVisualizer);
+            chartTh.setDaemon(true);
+            chartTh.start();
+//TODO: Uncomment
+//            Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
+//            cali.setFunction(Calibrator.SEND_CALIBRATE_TABLE);
+//            Thread caliThread = new Thread(cali);
+//            caliThread.start();
+            pb.progressProperty().bind(Communicator.getProgressProperty());
         });
         loadButton.setOnAction(event -> {
             FileChooser fch = new FileChooser();
             fch.setInitialDirectory(new File(System.getProperty("user.dir")));
             File fid = fch.showOpenDialog(loadButton.getScene().getWindow());
             if(fid != null){
-                Calibrator cali = Calibrator.getCalibrator(calibrateVehicleList);
-                cali.setFunction(Calibrator.LOAD_CALIBRATE_TABLE);
+                Communicator cali = Communicator.getCalibrator(calibrateVehicleList);
+                cali.setFunction(Communicator.LOAD_CALIBRATE_TABLE);
                 cali.setFile(fid);
                 Thread caliThread = new Thread(cali);
                 caliThread.start();
@@ -426,7 +430,7 @@ public class Controller {
                     }
 
                     //set filter
-                    Calibrator.getCalibrator(calibrateVehicleList);
+                    Communicator.getCalibrator(calibrateVehicleList);
                     dialog.close();
                     saveButton.setDisable(false);
                 } catch(Exception e){
