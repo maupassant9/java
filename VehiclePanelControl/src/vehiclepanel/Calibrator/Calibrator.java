@@ -219,7 +219,7 @@ public class Calibrator {
         Collections.sort(sortedKeySet);
         for(int speed: CalibrationPntsValidator.speedList){
             if(!table.containsKey(speed)){
-                Integer[] table_speed = table.get(getCloestInt(speed, sortedKeySet));
+                Integer[] table_speed = table.get(getClosestInt(speed, sortedKeySet));
                 table.put(speed,table_speed);
             }
         }
@@ -227,7 +227,7 @@ public class Calibrator {
     }
 
 
-    private int getCloestInt(int val, ArrayList<Integer> sortedValues){
+    private int getClosestInt(int val, ArrayList<Integer> sortedValues){
 
         int len = sortedValues.size();
         if(val <= sortedValues.get(0)) return sortedValues.get(0);

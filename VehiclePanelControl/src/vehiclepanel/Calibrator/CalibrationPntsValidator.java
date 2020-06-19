@@ -39,7 +39,7 @@
 
      //At least one speed should have at least
      //MIN_TEMP_PNTS_PER_SPEED different temperature data
-     final static int MIN_TEMP_PNTS_PER_SPEED = 2;
+     final static int MIN_TEMP_PNTS_PER_SPEED = 1;
      //For any given temperature and speed, MIN_PNTS_PER_GROUP
      //defines the minimum points needed for calibration
      final static int MIN_PNTS_PER_GROUP = 3;

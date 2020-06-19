@@ -94,14 +94,14 @@ public class Controller {
                                 Boolean oldVal, Boolean newVal) {
 				if(newVal == true){
                     //setup the calibration thread too
-                    Communicator cali = Communicator.getCalibrator(calibrateVehicleList);
+                    Communicator cali = Communicator.getCommunicator(calibrateVehicleList);
                     cali.setFunction(Communicator.ENTER_CALIBRATION_MODE);
                     Thread caliThread = new Thread(cali);
                     caliThread.setDaemon(true);
                     caliThread.start();
                 } else {
                     //setup the calibration thread too
-                    Communicator cali = Communicator.getCalibrator(calibrateVehicleList);
+                    Communicator cali = Communicator.getCommunicator(calibrateVehicleList);
                     cali.setFunction(Communicator.LEFT_CALI_STATE);
                     Thread caliThread = new Thread(cali);
                     caliThread.setDaemon(true);
@@ -202,7 +202,7 @@ public class Controller {
         //Set the event handler for all the buttons
         settingButton.setOnAction(event -> popup());
         sdipRst.setOnAction(event -> {
-            Communicator cali = Communicator.getCalibrator(calibrateVehicleList);
+            Communicator cali = Communicator.getCommunicator(calibrateVehicleList);
             cali.setFunction(Communicator.SDIP_DSP_RST);
             Thread caliThread = new Thread(cali);
             caliThread.start();
@@ -224,7 +224,7 @@ public class Controller {
                 File fid = fc.showSaveDialog(saveButton.getScene().getWindow());
                 if(fid != null)
                 {
-                    Communicator cali = Communicator.getCalibrator(calibrateVehicleList);
+                    Communicator cali = Communicator.getCommunicator(calibrateVehicleList);
                     cali.setFunction(Communicator.SAVE_CALIBRATE_TABLE);
                     cali.setFile(fid);
                     cali.setSaveButton(sendButton);
@@ -251,14 +251,14 @@ public class Controller {
 //            cali.setFunction(Calibrator.SEND_CALIBRATE_TABLE);
 //            Thread caliThread = new Thread(cali);
 //            caliThread.start();
-            pb.progressProperty().bind(Communicator.getProgressProperty());
+            //pb.progressProperty().bind(Communicator.getProgressProperty());
         });
         loadButton.setOnAction(event -> {
             FileChooser fch = new FileChooser();
             fch.setInitialDirectory(new File(System.getProperty("user.dir")));
             File fid = fch.showOpenDialog(loadButton.getScene().getWindow());
             if(fid != null){
-                Communicator cali = Communicator.getCalibrator(calibrateVehicleList);
+                Communicator cali = Communicator.getCommunicator(calibrateVehicleList);
                 cali.setFunction(Communicator.LOAD_CALIBRATE_TABLE);
                 cali.setFile(fid);
                 Thread caliThread = new Thread(cali);
@@ -430,7 +430,7 @@ public class Controller {
                     }
 
                     //set filter
-                    Communicator.getCalibrator(calibrateVehicleList);
+                    Communicator.getCommunicator(calibrateVehicleList);
                     dialog.close();
                     saveButton.setDisable(false);
                 } catch(Exception e){

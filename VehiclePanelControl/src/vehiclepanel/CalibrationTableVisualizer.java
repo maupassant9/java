@@ -9,6 +9,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -16,7 +17,7 @@ import javafx.stage.WindowEvent;
 public class CalibrationTableVisualizer implements Runnable {
 
     protected ChartController chartCtr;
-    protected Stage chartStage;
+    public static  Stage chartStage;
     protected final ObservableList<Vehicle> vehicleList;
 
     public CalibrationTableVisualizer(ObservableList<Vehicle> vehicleList){
@@ -44,6 +45,8 @@ public class CalibrationTableVisualizer implements Runnable {
                 chartStage.setTitle("Select Calibration Points ....");
                 chartStage.setScene(new Scene(root));
                 chartStage.setResizable(false);
+                chartStage.initModality(Modality.APPLICATION_MODAL);
+                chartStage.initOwner(Main.stage);
                 chartStage.showAndWait();
 
                 chartStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
@@ -66,6 +69,8 @@ public class CalibrationTableVisualizer implements Runnable {
             e.printStackTrace();
         }
         //generate the array list and pass to controller
+        chartCtr.setCalibrateVehicleList(vehicleList);
+
         ArrayList<Vehicle> list = new ArrayList<Vehicle>();
         for(Vehicle vel:vehicleList){
             list.add(vel);

@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -14,11 +13,14 @@ import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import vehiclepanel.CalibrationTableVisualizer;
 import vehiclepanel.Controller;
+import vehiclepanel.Main;
 import vehiclepanel.Vehicle;
 import vehiclepanel.CommSDIP.CommThread;
 import vehiclepanel.CommSDIP.UByteLikeC;
@@ -54,11 +56,18 @@ public class Communicator implements Runnable {
 
     private static ConcurrentLinkedQueue<ArrayList<Byte>> bufferTx;
 
+    //private Alert progressDiag = null;
+    private ProgressBarDialog pbd = null;
+
     // This is the raw data of the calibration vehicles, this data
     // should be saved in a file
     // HashMap<Integer, ArrayList<Vehicle>>
     //            |___Temperature
     private HashMap<Integer, ArrayList<Vehicle>> calibrationVehicles;
+
+    public void setCalibrationTable(HashMap<Integer, HashMap<Integer, Integer[]>> calibrationTable) {
+        this.calibrationTable = calibrationTable;
+    }
 
     // This is the map that should be written into SDIP
     // HashMap<Integer, HashMap<Integer, Integer[]>>
@@ -75,19 +84,10 @@ public class Communicator implements Runnable {
         filter = VehicleFilter.getVehicleFilter();
         calibrationTable = new HashMap<>();
 
-        for (int sensorNo = 1; sensorNo <= 3; sensorNo++) {
-            HashMap<Integer, Integer[]> table = new HashMap<>();
-            for (int speed = 40; speed <= 80; speed += 10) {
-                table.put(speed, new Integer[100]);
-            }
-            calibrationTable.put(sensorNo, table);
-        }
-
-        calibrationVehicles = new HashMap<>();
         bufferTx = null;
     }
 
-    public static Communicator getCalibrator(ObservableList<Vehicle> caliVels) {
+    public static Communicator getCommunicator(ObservableList<Vehicle> caliVels) {
 
         if (myown == null) {
             myown = new Communicator(caliVels);
@@ -123,16 +123,19 @@ public class Communicator implements Runnable {
                 }
                 break;
             case SAVE_CALIBRATE_TABLE:
-                generateTable();
                 saveCalibrationInfos();
                 break;
             case GENERATE_CALIBRATE_TABLE:
-                //generateTable();
-                //Enable save table button
-                //Platform.runLater(() -> button.setDisable(false));
                 break;
             case SEND_CALIBRATE_TABLE:
                 try {
+                    writeToTextView("Try to send calibration table....\n" +
+                            "Please wait a moment...\n");
+                    //show progress dialog
+                    Platform.runLater(()->{
+                        pbd = new ProgressBarDialog(CalibrationTableVisualizer.chartStage);
+                        pbd.showDialog();
+                    });
                     //reset dsp for better communication
                     if(!sendCmdDsp(COM_SDIP_RESET_DSP)) throw new Exception();
                     if(!sendTable()) throw new Exception();
@@ -141,8 +144,12 @@ public class Communicator implements Runnable {
                     if(!sendCmdDsp(COM_SDIP_RELEASE_DSP)) throw new Exception();
                 } catch (Exception e1) {
                     Platform.runLater(() -> {
+                        pbd.closeDialog();
+                    });
+                    Platform.runLater(()->{
                         Alert alert = new Alert(AlertType.ERROR,
-                            "Write to SDIP error", ButtonType.OK);
+                                "Write to SDIP error", ButtonType.OK);
+                        alert.initOwner(CalibrationTableVisualizer.chartStage);
                         alert.showAndWait();
                     });
                     e1.printStackTrace();
@@ -168,6 +175,7 @@ public class Communicator implements Runnable {
                     Platform.runLater(() -> {
                         Alert alert = new Alert(AlertType.ERROR,
                                 "Send to DSP error", ButtonType.OK);
+                        alert.initOwner(CalibrationTableVisualizer.chartStage);
                         alert.showAndWait();
                     });
                 }
@@ -178,26 +186,70 @@ public class Communicator implements Runnable {
 
     }
 
+    //An inner class for progressBar dialog
+    private class ProgressBarDialog{
+        private Alert progressDiag;
+        private ProgressBar progressBar;
+        private Label label;
+
+        public ProgressBarDialog(){
+            progressBar = new ProgressBar();
+            progressDiag = new Alert(AlertType.NONE);
+            Stage stage = getStage();
+            stage.setWidth(300);
+            progressDiag.initStyle(StageStyle.UNDECORATED);
+            progressBar.setMaxWidth(Double.MAX_VALUE);
+            progressBar.setPrefHeight(30);
+            progressBar.setPrefWidth(300);
+            label = new Label("Reset DSP....");
+            VBox vbox = new VBox();
+            vbox.getChildren().addAll(progressBar, label);
+            progressDiag.getDialogPane().setContent(vbox);
+            progressBar.setProgress(-1);
+        }
+
+        public ProgressBarDialog(Stage ownerStage){
+            this();
+            progressDiag.initOwner(ownerStage);
+        }
+
+        public Stage getStage(){
+            return (Stage) progressDiag.getDialogPane().getScene().getWindow();
+        }
+
+        public void updateProgress(double val){
+            progressBar.setProgress(val);
+        }
+
+        public void showDialog(){
+            progressDiag.showAndWait();
+        }
+
+        public void closeDialog(){
+            getStage().close();
+        }
+
+    }
 
     //Set which function to execute
     public void setFunction(Integer function) {
         this.function = function;
     }
 
-    // Generate the calibration table
-    public void generateTable() {
-        // add all the vehicles to the calibration
-        // vehicle list waiting for process
-        addCalibrationVehicles(vehicles);
-        HashMap<Integer, Double> caliPts = generateCalibrationFactor(1);
-        // generate the table
-        generateTable(1, caliPts);
-        caliPts = generateCalibrationFactor(2);
-        generateTable(2, caliPts);
-        caliPts = generateCalibrationFactor(3);
-        generateTable(3, caliPts);
-
-    }
+//    // Generate the calibration table
+//    public void generateTable() {
+//        // add all the vehicles to the calibration
+//        // vehicle list waiting for process
+//        addCalibrationVehicles(vehicles);
+//        HashMap<Integer, Double> caliPts = generateCalibrationFactor(1);
+//        // generate the table
+//        generateTable(1, caliPts);
+//        caliPts = generateCalibrationFactor(2);
+//        generateTable(2, caliPts);
+//        caliPts = generateCalibrationFactor(3);
+//        generateTable(3, caliPts);
+//
+//    }
 
     // add the vehicle to the calibration pts list,
     // Organize it with the temperature.
@@ -208,7 +260,7 @@ public class Communicator implements Runnable {
             //if no calibration wt infor is available
             if(vel.getCalibrateWt() == null)
                 vel.setCalibrateWt(filter.calibrateWeight);
-            
+
             //int temp =(int)(Math.round(((double)vel.getTemperature())/10)*10);
             int temp = (int) Math.round(((double)vel.getTemperature()));
             if (calibrationVehicles.containsKey(temp)) {
@@ -225,134 +277,137 @@ public class Communicator implements Runnable {
         //TODO: add code to validate the calibration
 
     }
-
-    // From above calibrationVehicles, generate calibrationPts,
-    // this is a temporary which is the processed calibration data
-    // Return value: HashMap <Integer,Double> calibrationPts;
-    //              Temperature___|     |_______calibration factor
-    private HashMap<Integer, Double> generateCalibrationFactor(int sensorNo) {
-        HashMap<Integer, Double> calibrationPts = new HashMap<>();
-        // get the measurement of some temperature
-        for (int temp : calibrationVehicles.keySet()) {
-            double sum = 0;
-            double sz = calibrationVehicles.get(temp).size();
-            for (Vehicle vels_temp : calibrationVehicles.get(temp)) {
-                double totalWt = vels_temp.getTotalWeightPerSensor(sensorNo);
-                if(totalWt != 0){
-                    sum += (vels_temp.getCalibrateWt()/totalWt);
-                } else {
-                    sum = 0;
-                }
-            }
-            // get the calibration factor @ temperature
-            double factor = sum/sz;
-            calibrationPts.put(temp, factor);
-        }
-        return calibrationPts;
-    }
-
-    // generate calibration table for sensor of each speed using
-    // calibration point data
-    private void generateTable(int sensorNo, HashMap<Integer, Double> caliPts) {
-        
-        HashMap<Integer, Integer[]> table = calibrationTable.get(sensorNo);
-        ArrayList<Integer> sortedKeySet = new ArrayList<Integer>(caliPts.keySet());
-        Collections.sort(sortedKeySet);
-
-        Integer[] table_speed = table.get(40);
-        for (int temp = -19; temp <= 80; temp++) {
-            int idx = (temp + 19);
-            double factor = 0;
-            if(temp <= sortedKeySet.get(0)){ //if temp @ left most 
-                factor = caliPts.get(sortedKeySet.get(0));
-            } else if (temp >= sortedKeySet.get(sortedKeySet.size()-1)) {
-                //if temp @ right most
-                factor = caliPts.get(sortedKeySet.get(sortedKeySet.size()-1));
-            } else { //if temp @ middle
-                int[] pos = getIndex(temp, sortedKeySet);
-                if(pos[0] == pos[1]){
-                    factor = caliPts.get(sortedKeySet.get(pos[0]));
-                } else{
-                    double temp0 = sortedKeySet.get(pos[0]);
-                    double delta_temp = sortedKeySet.get(pos[1]) - temp0;
-                    double tempNow = (double) temp;
-                    double factor0 = caliPts.get(sortedKeySet.get(pos[0]));
-                    double delta_factor = caliPts.get(sortedKeySet.get(pos[1])) - factor0;
-                    factor += factor0;
-                    factor += (tempNow - temp0) * delta_factor / delta_temp;
-                }
-
-            }
-            table_speed[idx] = (int) (factor * MULTIPLY_FACTOR_TABLE);
-        }
-
-        // just copy speed table from 40
-        Integer[] table_40kmh = table.get(40);
-        for (int speed = 50; speed <= 80; speed += 10) {
-            table_speed = table.get(speed);
-            for (int temp = -20; temp < 80; temp++) {
-                int idx = (temp + 20);
-                table_speed[idx] = table_40kmh[idx];
-            }
-        }
-        //write the table to file
-        String fname = System.getProperty("user.dir");
-        try {
-            FileWriter fwr = new FileWriter(fname+"\\table.log", true);
-            fwr.write(";===========Sensor = "+sensorNo+"============\n");
-            for(Integer speedKey:table.keySet())
-            {
-                fwr.write(";===========Speed = "+speedKey+"============\n");
-                int cnt = 0;
-                Integer[] tempTable = table.get(speedKey);
-                for(Integer val: tempTable){
-                    cnt++;
-                    fwr.write(""+val.toString()+", ");
-                    //System.out.println(val);
-                    if(cnt == 10){
-                        fwr.write('\n');
-                        cnt = 0;
-                    }
-                }
-            }
-            fwr.flush();
-            fwr.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        //Enable save table button
-        Platform.runLater(() -> button.setDisable(false));
-    }
-
-    // get temperature index in the calibrated vehicle
-    // function used by generate table
-    private int[] getIndex(int temp, ArrayList<Integer> list) {
-        int[] idxs = new int[2];
-        idxs[1] = 0;
-        idxs[0] = 1;
-
-        for (Integer val : list) {
-            if (temp > val) {
-                idxs[1]++;
-            } else if (temp < val) {
-                idxs[0] = idxs[1] - 1;
-                return idxs;
-            } else {
-                idxs[0] = idxs[1];
-                return idxs;
-            }
-        }
-
-        idxs[0] = idxs[1];
-        return idxs;
-    }
+//
+//    // From above calibrationVehicles, generate calibrationPts,
+//    // this is a temporary which is the processed calibration data
+//    // Return value: HashMap <Integer,Double> calibrationPts;
+//    //              Temperature___|     |_______calibration factor
+//    private HashMap<Integer, Double> generateCalibrationFactor(int sensorNo) {
+//        HashMap<Integer, Double> calibrationPts = new HashMap<>();
+//        // get the measurement of some temperature
+//        for (int temp : calibrationVehicles.keySet()) {
+//            double sum = 0;
+//            double sz = calibrationVehicles.get(temp).size();
+//            for (Vehicle vels_temp : calibrationVehicles.get(temp)) {
+//                double totalWt = vels_temp.getTotalWeightPerSensor(sensorNo);
+//                if(totalWt != 0){
+//                    sum += (vels_temp.getCalibrateWt()/totalWt);
+//                } else {
+//                    sum = 0;
+//                }
+//            }
+//            // get the calibration factor @ temperature
+//            double factor = sum/sz;
+//            calibrationPts.put(temp, factor);
+//        }
+//        return calibrationPts;
+//    }
+//
+//    // generate calibration table for sensor of each speed using
+//    // calibration point data
+//    private void generateTable(int sensorNo, HashMap<Integer, Double> caliPts) {
+//
+//        HashMap<Integer, Integer[]> table = calibrationTable.get(sensorNo);
+//        ArrayList<Integer> sortedKeySet = new ArrayList<Integer>(caliPts.keySet());
+//        Collections.sort(sortedKeySet);
+//
+//        Integer[] table_speed = table.get(40);
+//        for (int temp = -19; temp <= 80; temp++) {
+//            int idx = (temp + 19);
+//            double factor = 0;
+//            if(temp <= sortedKeySet.get(0)){ //if temp @ left most
+//                factor = caliPts.get(sortedKeySet.get(0));
+//            } else if (temp >= sortedKeySet.get(sortedKeySet.size()-1)) {
+//                //if temp @ right most
+//                factor = caliPts.get(sortedKeySet.get(sortedKeySet.size()-1));
+//            } else { //if temp @ middle
+//                int[] pos = getIndex(temp, sortedKeySet);
+//                if(pos[0] == pos[1]){
+//                    factor = caliPts.get(sortedKeySet.get(pos[0]));
+//                } else{
+//                    double temp0 = sortedKeySet.get(pos[0]);
+//                    double delta_temp = sortedKeySet.get(pos[1]) - temp0;
+//                    double tempNow = (double) temp;
+//                    double factor0 = caliPts.get(sortedKeySet.get(pos[0]));
+//                    double delta_factor = caliPts.get(sortedKeySet.get(pos[1])) - factor0;
+//                    factor += factor0;
+//                    factor += (tempNow - temp0) * delta_factor / delta_temp;
+//                }
+//
+//            }
+//            table_speed[idx] = (int) (factor * MULTIPLY_FACTOR_TABLE);
+//        }
+//
+//        // just copy speed table from 40
+//        Integer[] table_40kmh = table.get(40);
+//        for (int speed = 50; speed <= 80; speed += 10) {
+//            table_speed = table.get(speed);
+//            for (int temp = -20; temp < 80; temp++) {
+//                int idx = (temp + 20);
+//                table_speed[idx] = table_40kmh[idx];
+//            }
+//        }
+//        //write the table to file
+//        String fname = System.getProperty("user.dir");
+//        try {
+//            FileWriter fwr = new FileWriter(fname+"\\table.log", true);
+//            fwr.write(";===========Sensor = "+sensorNo+"============\n");
+//            for(Integer speedKey:table.keySet())
+//            {
+//                fwr.write(";===========Speed = "+speedKey+"============\n");
+//                int cnt = 0;
+//                Integer[] tempTable = table.get(speedKey);
+//                for(Integer val: tempTable){
+//                    cnt++;
+//                    fwr.write(""+val.toString()+", ");
+//                    //System.out.println(val);
+//                    if(cnt == 10){
+//                        fwr.write('\n');
+//                        cnt = 0;
+//                    }
+//                }
+//            }
+//            fwr.flush();
+//            fwr.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//        //Enable save table button
+//        Platform.runLater(() -> button.setDisable(false));
+//    }
+//
+//    // get temperature index in the calibrated vehicle
+//    // function used by generate table
+//    private int[] getIndex(int temp, ArrayList<Integer> list) {
+//        int[] idxs = new int[2];
+//        idxs[1] = 0;
+//        idxs[0] = 1;
+//
+//        for (Integer val : list) {
+//            if (temp > val) {
+//                idxs[1]++;
+//            } else if (temp < val) {
+//                idxs[0] = idxs[1] - 1;
+//                return idxs;
+//            } else {
+//                idxs[0] = idxs[1];
+//                return idxs;
+//            }
+//        }
+//
+//        idxs[0] = idxs[1];
+//        return idxs;
+//    }
 
     //save the calibration vehicle information to
     //some files.
     private void saveCalibrationInfos() 
     {
+        //add the table into the list
+        addCalibrationVehicles(vehicles);
+
         if(fid != null){
             //save the table
             try{
@@ -365,22 +420,16 @@ public class Communicator implements Runnable {
                     }
                 }
                 out.close();
-                Platform.runLater(new Runnable(){
-                
-                    @Override
-                    public void run() {
-                        button.setDisable(false);
-                    }
-                });
+                Platform.runLater(()->{button.setDisable(false);});
             }catch (IOException e){
                 Platform.runLater(new Runnable(){
                     @Override
                     public void run() {
                         Alert alert = new Alert(AlertType.ERROR,"File Saved Error!!!",ButtonType.OK);
+                        alert.initOwner(Main.stage);
                         alert.showAndWait();
                     }
                 });
-                     
             }     
         }
     }
@@ -408,7 +457,7 @@ public class Communicator implements Runnable {
                         vehicles.add(vel);
                 }
             });
-            
+
             writeToTextView("File "+ fid.getName()+" loaded successfully!\n");
 
 
@@ -419,6 +468,7 @@ public class Communicator implements Runnable {
                 public void run() {
                     
                     Alert alert = new Alert(AlertType.ERROR,"File format error!", ButtonType.OK);
+                    alert.initOwner(Main.stage);
                     alert.showAndWait();
                     
                 }
@@ -433,6 +483,7 @@ public class Communicator implements Runnable {
     {
         boolean res = true;
         double progress = 0;
+
         for(int sensorNo = 1; sensorNo < 4; sensorNo++)
         {
             HashMap<Integer,Integer[]> tables = calibrationTable.get(sensorNo);

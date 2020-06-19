@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.chart.*;
@@ -16,6 +17,7 @@ import javafx.scene.layout.HBox;
 import org.jetbrains.annotations.NotNull;
 import vehiclepanel.Calibrator.CalibrationPntsValidator;
 import vehiclepanel.Calibrator.Calibrator;
+import vehiclepanel.Calibrator.Communicator;
 
 public class ChartController {
     
@@ -29,6 +31,12 @@ public class ChartController {
     Button chartButtonLtArrow;
     @FXML
     Button chartButtonRtArrow;
+
+    public void setCalibrateVehicleList(ObservableList<Vehicle> calibrateVehicleList) {
+        this.calibrateVehicleList = calibrateVehicleList;
+    }
+
+    private ObservableList<Vehicle> calibrateVehicleList;
 
     //Organized vehicles - corresponding to the vehcles selected in each 
     //speed table:
@@ -57,7 +65,9 @@ public class ChartController {
 
         //add a button
         Button genTableButton = new Button("Generate Table");
+        Button sendTable = new Button("Send Table");
         chartHbox.getChildren().add(1,genTableButton);
+        chartHbox.getChildren().add(2, sendTable);
 
         vehicleDB = new HashMap<>();
         for(int speed: speedList){
@@ -65,15 +75,20 @@ public class ChartController {
         }
         currentChartIdx = 0;
         chartButtonLtArrow.setOnAction(event->{
-            currentChartIdx--;
-            if(currentChartIdx == -1) currentChartIdx = speedList.length -1;
-            showDataAtSpeed(speedList[currentChartIdx]);
+            showPreviousChart();
         });
 
         chartButtonRtArrow.setOnAction(event->{
             showNextChart();
         });
-
+        sendTable.setOnAction(actionEvent -> {
+            Communicator comm = Communicator.getCommunicator(calibrateVehicleList);
+            comm.setFunction(Communicator.SEND_CALIBRATE_TABLE);
+            comm.setCalibrationTable(table);
+            Thread commThread = new Thread(comm);
+            commThread.start();
+        });
+        sendTable.setDisable(true);
         genTableButton.setOnAction(event->{
             Calibrator calibrator = Calibrator.getCalibrator();
             //get all the selected vehicles
@@ -91,11 +106,20 @@ public class ChartController {
             try{
                 //generate the calibration table
                 table = calibrator.generateTable(selectedVehicles);
+                if(table == null) throw new Exception();
+                if(table.size() == 0){
+                    table = null;
+                    throw new Exception();
+                }
             } catch (Exception e){
                 Alert alert = new Alert(Alert.AlertType.ERROR,
                         "Calibration process aborted, unknow error.",
                         ButtonType.OK);
             }
+            //show chart
+            currentChartIdx = speedList.length;
+            showChart();
+            sendTable.setDisable(false);
       });
         charts = new ArrayList<>();
 
@@ -145,6 +169,10 @@ public class ChartController {
             currentChartIdx = 0;
         }
 
+        showChart();
+    }
+
+    private void showChart(){
         if(currentChartIdx < speedList.length){
             showDataAtSpeed(speedList[currentChartIdx]);
         } else if(currentChartIdx < 2*speedList.length){
@@ -152,8 +180,23 @@ public class ChartController {
         }else{
             showCalibrationData(3,speedList[currentChartIdx-2*speedList.length]);
         }
-
     }
+
+
+    private void showPreviousChart()
+    {
+        currentChartIdx--;
+        if(currentChartIdx == -1){
+            //check if there is any table ready or not
+            if(table == null) currentChartIdx = speedList.length-1;
+            else {
+                currentChartIdx = 3*speedList.length -1;
+            }
+        }
+        showChart();
+    }
+
+
     private void showDataAtSpeed(int speed)
     {
         ArrayList<VehicleWithSelectMark> vels = vehicleDB.get(speed);
